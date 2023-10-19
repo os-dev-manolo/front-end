@@ -1,0 +1,31 @@
+export interface IPropertyITBI {
+    id: number;
+    id_taxaseimpostos: string;
+    tipo_cadastro: string;
+    codigo_cadastro: string;
+    nome: string;
+    nome_fantasia: string;
+    cpf_cnpj: string;
+    endereco_imovel: string;
+    zona_imovel: string;
+    quadra_imovel: string;
+    lote_imovel: string;
+    bairro_imovel: string;
+    cep: string;
+    zona_fiscal: string;
+    quadra_fiscal: string;
+    lote_fiscal: string;
+    endereco_contrib: string;
+    bairro_contrib: string;
+    complemento: string;
+    exercicio: string;
+    divida: string;
+    descricao_divida: string;
+    sub: string;
+    parc: string;
+    situacao: string;
+    vencimento: string;
+    vrl_principal: string;
+    total: string;
+    avaliacao: string;
+}

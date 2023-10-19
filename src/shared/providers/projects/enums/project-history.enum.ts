@@ -1,0 +1,15 @@
+export enum ProjectHistoryDetailEnum {
+    ATTACHMENT = "attachment",
+    DUE_DATE = "due_date",
+    ESTIMATED_HOURS = "estimated_hours",
+    DONE_RATIO = "done_ratio",
+    WORK = "work",
+    NUMBER = "number",
+    STREET = "street",
+    ZIPCODE = "zipcode",
+    SECRETARY = "secretay",
+    CNPJ = "cnpj",
+    RESSOURCE = "ressource",
+    VALUE = "value",
+    DESCRIPTION = "description",
+}
