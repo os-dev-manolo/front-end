@@ -13,7 +13,7 @@ import { SideBarProvider } from "../../../shared/contexts/side-bars.context";
 import { OlProvider } from "../../../shared/contexts/ol-map.context";
 
 import { useAuth } from "../../../shared/hooks/useAuth";
-import { Container } from "../../webgeo/home/styles";
+import { Container } from "./styles";
 
 export const Home: React.FC = () => {
     const { signed } = useAuth();

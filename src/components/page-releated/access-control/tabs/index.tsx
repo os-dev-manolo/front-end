@@ -13,12 +13,12 @@ import {
     WebgeoFeaturesLabels,
     WebgeoRessourcesLabels,
 } from "../../../../config/shared/AccessManagerConfig";
-import { MenusConfig } from "../../../../config/grp/MenusConfig";
 
 import { IFormData, TabsProps } from "./interfaces";
 import { formatGrantedAccess } from "./utils";
 import { LayersApiService } from "../../../../shared/services/api/layers-api.service";
 import { FeaturesEnum } from "../../../../shared/enums/features.enum";
+import { MenusConfigGbp } from "../../../../config/gbp/MenusConfig";
 
 export const Tabs = React.forwardRef<FormHandles, TabsProps>(
     ({ roleAllowedFeatures, onSubmit }, formRef) => {
@@ -29,7 +29,7 @@ export const Tabs = React.forwardRef<FormHandles, TabsProps>(
             useState<Record<string, string>>();
 
         useEffect(() => {
-            const submenus = MenusConfig.flatMap((menu) => menu.submenus);
+            const submenus = MenusConfigGbp.flatMap((menu) => menu.submenus);
             const features = submenus.reduce(
                 (acc, submenu, index) =>
                     Object.assign(acc, {

@@ -11,7 +11,7 @@ import { ProtectedRoutes } from "./protected.routes";
 import { RoutesConfigGbp } from "../config/gbp/RoutesConfig";
 import Menus from "../views/gbp/menus";
 import { Agenda } from "../views/gbp/agenda";
-import Dashboard from "../views/gbp/dashboard";
+// import Dashboard from "../views/gbp/dashboard";
 
 export const Routes: React.FC = () => {
     return (
@@ -21,26 +21,6 @@ export const Routes: React.FC = () => {
             <Route
                 path="/reset-password"
                 element={<Webgeo.WebgeoResetPassword />}
-            />
-            <Route
-                path="/consulta-previa/:subscription"
-                element={<Webgeo.WebgeoConsultaPrevia />}
-            />
-            <Route
-                path="/confrontante/:subscription"
-                element={
-                    <ProtectedRoutes>
-                        <Webgeo.WebgeoConfrontante />
-                    </ProtectedRoutes>
-                }
-            />
-            <Route
-                path="/bci/:subscription"
-                element={
-                    <ProtectedRoutes>
-                        <Webgeo.WebgeoBci />
-                    </ProtectedRoutes>
-                }
             />
             <Route path="/gbp/login" element={<Login />} />
             <Route path="/calendario" element={<Agenda />} />
