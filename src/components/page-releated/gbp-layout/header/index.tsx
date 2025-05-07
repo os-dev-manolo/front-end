@@ -11,7 +11,7 @@ export const HeaderGbp: React.FC = () => {
             style={{ maxWidth: "calc(100vw - 160px)" }}
         >
             <div />
-            <div className="flex space-x-5 text-purple-700">
+            <div className="flex space-x-5 text-purple-700 hover:text-orange-500">
                 <Tooltip text="Sair" placement="bottom">
                     <button type="button" onClick={signOut}>
                         <BiLogOut size={35} />

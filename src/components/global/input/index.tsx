@@ -10,7 +10,13 @@ import { useField } from "@unform/core";
 
 import ReactInputMask, { Props as MaskProps } from "react-input-mask";
 
-import { Container, MessageError, LabelContainer, LabelContainerTextArea, ContainerTextArea } from "./styles";
+import {
+    Container,
+    MessageError,
+    LabelContainer,
+    LabelContainerTextArea,
+    ContainerTextArea,
+} from "./styles";
 import environments from "../../../environments";
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -18,7 +24,8 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
     icon?: React.ComponentType<IconBaseProps>;
 }
-export interface TextAreaProps extends InputHTMLAttributes<HTMLTextAreaElement> {
+export interface TextAreaProps
+    extends InputHTMLAttributes<HTMLTextAreaElement> {
     name: string;
     label?: string;
     icon?: React.ComponentType<IconBaseProps>;

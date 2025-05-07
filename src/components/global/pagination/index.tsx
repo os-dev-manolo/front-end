@@ -119,7 +119,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div className="flex items-center justify-center ">
                     <small>
-                        <p className="text-teal-900">
+                        <p className="text-purple-900">
                             Exibindo:{" "}
                             {maxItemsToDisplay * pageOnFocus > totalOfItems
                                 ? totalOfItems -

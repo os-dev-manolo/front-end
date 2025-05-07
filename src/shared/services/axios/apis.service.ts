@@ -13,6 +13,7 @@ semvApi.interceptors.request.use((config) => {
     if (config.headers && token) {
         // eslint-disable-next-line no-param-reassign
         config.headers.Authorization = `Bearer ${token}`;
+        // console.log(token);
     }
 
     return config;

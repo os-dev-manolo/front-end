@@ -56,7 +56,6 @@ export default function useAsync<I>(defaultValue?: I) {
 
             try {
                 const response = await asyncFunc(args);
-
                 dispatch({ type: "success", value: response });
             } catch (err) {
                 dispatch({

@@ -42,7 +42,7 @@ export const MenusButtonsGbp: React.FC<MenusButtonsProps> = ({
             >
                 <ul className="m-0 p-0 p-2">
                     {submenus.map((submenu) => (
-                        <li className="w-full" key={submenu.feature}>
+                        <li className="w-full" key={submenu.description}>
                             <Link
                                 to={submenu.navigate}
                                 className="text-purple-600 flex items-center hover:text-orange-600"

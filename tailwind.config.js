@@ -9,7 +9,10 @@ module.exports = {
             'height': 'height',
             'width': 'width',
             'spacing': 'margin, padding',
-        }
+        },
+        colors: {
+            'regal-blue': '#243c5a',
+          },
     },
   },
   plugins: [

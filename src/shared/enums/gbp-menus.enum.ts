@@ -15,6 +15,18 @@ export enum GbpSubMenusPathEnum {
     COMPLETE = "completo",
     NEW = "novo",
     RETURN = "resposta",
+
+    AMENDMENT = "emendas",
+    CANDIDATES = "candidatos",
+    CITIES = "cidades",
+
+    POLITICS = "politicos",
+    POLITICAL_PARTIES = "partidos",
+    POLITICAL_CHAINS = "correntes-politicas",
+
+    OFFICIALS = "cargo-politico",
+
+    PERSON = "pessoa",
 }
 
 export enum GbpModulesPathEnum {
@@ -32,12 +44,13 @@ export enum GbpModulesPathEnum {
 }
 
 export enum GbpMenusPathEnum {
-    GBP_REGISTER_POLITICAL_CHAIN = "registro-corrente-politica",
-    GBP_REGISTER_OFICIO = "registro-oficio",
-    GBP_REGISTER_EMENDA = "registro-emenda",
-    GBP_REGISTER_APPOINTMENT = "registro-compromisso",
-    GBP_REGISTER_PF = "registro-pf",
-    GBP_REGISTER_PJ = "registro-pj",
+    GBP_REGISTER_POLITICS = "vida-politica",
+    GBP_REGISTER_POLITICAL_CHAIN = "corrente-politica",
+    GBP_REGISTER_OFICIO = "oficio",
+    GBP_REGISTER_AMENDMENT = "emendas",
+    GBP_REGISTER_APPOINTMENT = "compromisso",
+    GBP_REGISTER_PF = "pessoa-fisica",
+    GBP_REGISTER_PJ = "pessoa-juridica",
     CONFIG_WEBGEO = "config_webgeo",
     WEBGEO_ACCESS = "webgeo_access",
     WEBGEO_LOGS = "webgeo_logs",

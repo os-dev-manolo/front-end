@@ -16,7 +16,6 @@ export class UserDatasource implements IUserDatasource {
     }
 
     async signin(args: ISigninArgs): Promise<ISigninResponse> {
-        console.log(args);
         const { data } = await this.api.post<ISigninResponse>("/auth", args);
 
         return data;

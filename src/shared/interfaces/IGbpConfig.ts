@@ -4,7 +4,6 @@ import { IconBaseProps } from "react-icons";
 import { FeaturesEnum } from "../enums/features.enum";
 import { GbpModulesPathEnum } from "../enums/gbp-menus.enum";
 
-
 export interface IGenericRoute {
     description: string;
     icon: React.ComponentType<IconBaseProps>;

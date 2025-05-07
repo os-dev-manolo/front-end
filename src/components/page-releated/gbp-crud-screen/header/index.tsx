@@ -11,7 +11,7 @@ interface ButtonProps {
 
 const Button: React.FC<ButtonProps> = ({ text, onClick, Icon }) => (
     <button
-        className="flex items-center text-slate-700 hover:text-teal-600"
+        className="flex items-center text-slate-700 hover:text-blue-600"
         type="button"
         onClick={onClick}
     >

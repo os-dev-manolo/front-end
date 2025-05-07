@@ -22,7 +22,7 @@ const DatePickerContainer: React.FC<{ children: React.ReactNode }> = ({
             <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none z-10">
                 <svg
                     aria-hidden="true"
-                    className="w-5 h-5 text-teal-700 "
+                    className="w-5 h-5 text-blue-700 "
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +72,7 @@ export function DatePicker({ name, label, ...rest }: Props) {
     return (
         <div className="flex flex-col relative justify-center">
             {label && (
-                <div className="absolute text-sm text-teal-800 z-10 -top-2.5">
+                <div className="absolute text-sm text-blue-800 z-10 -top-2.5">
                     {label}
                 </div>
             )}
@@ -84,7 +84,7 @@ export function DatePicker({ name, label, ...rest }: Props) {
                         maxDate={endAt}
                         selected={startAt}
                         placeholderText="Data inicial"
-                        className="border rounded-lg border-teal-900 text-gray-900 sm:text-sm  focus:ring-teal-500 focus:border-teal-500 block w-full pl-10 p-2.5"
+                        className="border rounded-lg border-blue-900 text-gray-900 sm:text-sm  focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
                         onChange={setStartAt}
                         {...rest}
                     />

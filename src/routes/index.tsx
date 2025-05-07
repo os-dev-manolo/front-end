@@ -11,6 +11,7 @@ import { ProtectedRoutes } from "./protected.routes";
 import { RoutesConfigGbp } from "../config/gbp/RoutesConfig";
 import Menus from "../views/gbp/menus";
 import { Agenda } from "../views/gbp/agenda";
+import Dashboard from "../views/gbp/dashboard";
 
 export const Routes: React.FC = () => {
     return (
@@ -43,10 +44,7 @@ export const Routes: React.FC = () => {
             />
             <Route path="/gbp/login" element={<Login />} />
             <Route path="/calendario" element={<Agenda />} />
-            <Route
-                path="/gestor-gabinete"
-                element={<ProtectedRoutes restricted />}
-            >
+            <Route path="/gestor-gabinete" element={<ProtectedRoutes />}>
                 {RoutesConfigGbp.protected.modules.map((module) => (
                     <Route
                         path={module.path}

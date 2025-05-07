@@ -22,7 +22,7 @@ export const PageButtons: React.FC<PageButtonsProps> = ({
             aria-current="page"
             className={`z-10 ${
                 pageOnFocus === page ? "bg-indigo-50" : null
-            } border-indigo-500 text-teal-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium`}
+            } border-indigo-500 text-purple-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium`}
         >
             {page}
         </button>

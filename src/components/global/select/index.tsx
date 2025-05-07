@@ -91,7 +91,7 @@ export const Select: React.FC<Props> = ({
                     {error ? (
                         <MessageError>{error}</MessageError>
                     ) : (
-                        <p className="text-sm text-teal-800">{label}</p>
+                        <p className="text-sm text-purple-800">{label}</p>
                     )}
                 </LabelContainer>
             )}
@@ -102,13 +102,14 @@ export const Select: React.FC<Props> = ({
                 onChange={handleChangeValue}
                 onFocus={onFocus}
                 ref={selectRef}
+                placeholder="Selecione..."
                 styles={{
                     control: (styles) => ({
                         ...styles,
-                        border: "1px solid #234e52",
+                        border: "1px solid #710193",
                         boxShadow: "0 !important",
                         "&:hover": {
-                            border: "1px solid #234e52 !important",
+                            border: "1px solid #710193 !important",
                         },
                         borderRadius: "6px",
                         outline: "none",

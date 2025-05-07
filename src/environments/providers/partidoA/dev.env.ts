@@ -4,10 +4,10 @@ export default {
     client: {
         name: "partido a",
         nomePrefeitura: "PARTIDO A",
-        logo: "https://comunicadores.info/wp-content/uploads/2014/10/partidos-criativos_psd-ppt-pdf-png-1.jpg",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/e/e4/Progressistas_logo.png",
         brasao: "https://comunicadores.info/wp-content/uploads/2014/10/partidos-criativos_psd-ppt-pdf-png-1.jpg",
         municipio: "| PARTIDO A",
-        tema: "blue",
+        tema: "light-blue",
     },
     webgeo: {
         coordinatesPattern: "EPSG:32722",

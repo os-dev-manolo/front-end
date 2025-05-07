@@ -28,7 +28,7 @@ export function THead<T>({ columns }: { columns: ITableColumns<T>[] }) {
                     <th
                         key={column.key}
                         scope="col"
-                        className="text-slate-600 py-4 px-2 text-left"
+                        className="text-purple-600 py-4 px-2 text-left"
                     >
                         <HeadButton {...column} />
                     </th>

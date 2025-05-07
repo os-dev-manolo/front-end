@@ -3,7 +3,7 @@ import {
     FiUser,
     FiPlusSquare,
     FiCheck,
-    FiSearch,
+    FiPaperclip,
 } from "react-icons/fi";
 import {
     FaBuilding,
@@ -20,6 +20,7 @@ import {
     MdGroups,
     MdPictureAsPdf,
 } from "react-icons/md";
+import { GrGroup } from "react-icons/gr";
 import { FeaturesEnum } from "../../shared/enums/features.enum";
 
 import {
@@ -78,9 +79,9 @@ export const MenusConfigGbp = [
         module: GbpModulesPathEnum.REGISTER,
         submenus: [
             {
-                description: "Nova",
-                icon: FiPlusSquare,
-                navigate: `${GbpMenusPathEnum.GBP_REGISTER_EMENDA}/${GbpSubMenusPathEnum.NEW}`,
+                description: "Emendas",
+                icon: FiPaperclip,
+                navigate: `${GbpMenusPathEnum.GBP_REGISTER_AMENDMENT}/${GbpSubMenusPathEnum.NEW}`,
                 feature: FeaturesEnum.PERMISSIONS,
             },
         ],
@@ -106,15 +107,33 @@ export const MenusConfigGbp = [
         ],
     },
     {
-        description: "Corrente",
+        description: "Política",
         icon: MdGroups,
-        key: "political-chain-register",
+        key: "politics-register",
         module: GbpModulesPathEnum.REGISTER,
         submenus: [
             {
-                description: "Nova",
-                icon: FiPlusSquare,
-                navigate: `${GbpMenusPathEnum.GBP_REGISTER_POLITICAL_CHAIN}/${GbpSubMenusPathEnum.NEW}`,
+                description: "Cargos Políticos",
+                icon: GrGroup,
+                navigate: `${GbpMenusPathEnum.GBP_REGISTER_POLITICS}/${GbpSubMenusPathEnum.OFFICIALS}`,
+                feature: FeaturesEnum.PERMISSIONS,
+            },
+            {
+                description: "Políticos",
+                icon: GrGroup,
+                navigate: `${GbpMenusPathEnum.GBP_REGISTER_POLITICS}/${GbpSubMenusPathEnum.POLITICS}`,
+                feature: FeaturesEnum.PERMISSIONS,
+            },
+            {
+                description: "Partidos",
+                icon: GrGroup,
+                navigate: `${GbpMenusPathEnum.GBP_REGISTER_POLITICS}/${GbpSubMenusPathEnum.POLITICAL_PARTIES}`,
+                feature: FeaturesEnum.PERMISSIONS,
+            },
+            {
+                description: "Correntes",
+                icon: GrGroup,
+                navigate: `${GbpMenusPathEnum.GBP_REGISTER_POLITICS}/${GbpSubMenusPathEnum.POLITICAL_CHAINS}`,
                 feature: FeaturesEnum.PERMISSIONS,
             },
         ],
@@ -169,9 +188,9 @@ export const MenusConfigGbp = [
         module: GbpModulesPathEnum.REGISTER,
         submenus: [
             {
-                description: "Nova",
+                description: "Lista de Visitas",
                 icon: FiPlusSquare,
-                navigate: `${GbpMenusPathEnum.GBP_REGISTER_POLITICAL_CHAIN}/${GbpSubMenusPathEnum.NEW}`,
+                navigate: `${GbpMenusPathEnum.GBP_REGISTER_POLITICS}/${GbpSubMenusPathEnum.CITIES}`,
                 feature: FeaturesEnum.PERMISSIONS,
             },
         ],

@@ -16,21 +16,26 @@ export const ProtectedRoutes: React.FC<ProtectedRoutesProps> = ({
 }) => {
     const { signed, user } = useAuth();
 
-    if (restricted) {
-        if (
-            !signed ||
-            !user.authorizationsByFeatureName[FeaturesEnum.GBP_ACCESS]?.canRead
-        )
-            return <Navigate to="/gbp/login" />;
+    // if (restricted) {
+    //     if (
+    //         !signed ||
+    //         !user.authorizationsByFeatureName[FeaturesEnum.GBP_ACCESS]?.canRead
+    //     )
+    //         return <Navigate to="/gbp/login" />;
 
-        return (
-            <GpbLayout>
-                <Outlet />
-            </GpbLayout>
-        );
-    }
+    //     return (
+    //         <GpbLayout>
+    //             <Outlet />
+    //         </GpbLayout>
+    //     );
+    // }
 
-    if (!signed) return <Navigate to="/" />;
+    // if (!signed) return <Navigate to="/" />;
 
-    return children || null;
+    // return children || null;
+    return (
+        <GpbLayout>
+            <Outlet />
+        </GpbLayout>
+    );
 };

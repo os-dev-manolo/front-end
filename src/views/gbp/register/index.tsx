@@ -1,4 +1,4 @@
 import { CompleteRegister } from "./complete";
-import { SimplifiedRegister } from "./simple";
+import simple from "./simple";
 
-export { SimplifiedRegister, CompleteRegister };
+export { simple as SimpleRegister, CompleteRegister };

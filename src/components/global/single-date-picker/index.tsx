@@ -67,7 +67,7 @@ export function SingleDatePicker({ name, label, ...rest }: Props) {
     return (
         <div className="flex flex-col relative justify-center">
             {label && (
-                <div className="absolute text-sm text-teal-800 z-10 -top-2.5">
+                <div className="absolute text-sm text-purple-800 z-10 -top-3.5">
                     {label}
                 </div>
             )}
@@ -79,7 +79,7 @@ export function SingleDatePicker({ name, label, ...rest }: Props) {
                         ref={datepickerInitRef}
                         selected={startAt}
                         placeholderText="Data"
-                        className="border rounded-lg border-teal-900 text-gray-900 sm:text-sm  focus:ring-teal-500 focus:border-teal-500 block w-full pl-10 p-2.5"
+                        className="border rounded-lg border-purple-900 text-gray-900 sm:text-sm focus:ring-purple-500 focus:border-purple-500 block w-full pl-10 p-2.5"
                         onChange={setStartAt}
                         showTimeSelect
                         dateFormat="d MMMM yyyy - h:mm aa"

@@ -50,6 +50,7 @@ export const EditAction = ({
     ActionMaker({
         icon: FaEdit,
         tooltipText: "Editar",
+        color: "black",
         value,
         doAfterClick,
     });

@@ -15,7 +15,7 @@ export const MainButton: React.FC<MainButtonProps> = ({
 }) => {
     return (
         <button
-            className="font-bold text-white bg-teal-900 transition duration-300 ease-in-out hover:bg-teal-700  w-full h-full py-1 rounded-md flex justify-center items-center"
+            className="font-bold text-white bg-blue-900 transition duration-300 ease-in-out hover:bg-blue-700  w-full h-full py-1 rounded-md flex justify-center items-center"
             disabled={loading}
             {...buttonProps}
         >
