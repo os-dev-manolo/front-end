@@ -26,7 +26,7 @@ const OrgAction = () => (
 const City = () => <Input name="cidade" type="text" label="Cidade" />;
 
 const MicroRegion = () => (
-    <Input name="microrregiao1" type="text" label="Microrregiao" />
+    <Input name="microrregiao" type="text" label="Microrregiao" />
 );
 
 const EstimatedValue = () => (
