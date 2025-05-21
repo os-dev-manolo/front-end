@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Input, Select } from "../../../../components/global";
-import { SingleDatePicker } from "../../../../components/global/single-date-picker";
+import { SingleDatePicker } from "../../../../components/global/event-date-picker";
 import { ActionsFormProps } from "../../../../components/page-releated/gbp-standard-screen/actions-form";
 import { Person } from "../../../../shared/interfaces/IPerson";
 import {

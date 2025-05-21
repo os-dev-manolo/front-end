@@ -42,16 +42,17 @@ const Button: Record<
     details: { label: "FILTRAR", Icon: BiFilterAlt },
 };
 
-const standardFormatData = (data: Record<string, string>) => {
+const standardFormatData = (data: Record<string, any>) => {
     return Object.entries(data).reduce((acc, [key, value]) => {
-        if (value === "true" || value === "false") {
-            Object.assign(acc, { [key]: value === "true" });
+        if (value === "" || value === undefined) {
+            acc[key] = null;
+        } else if (value === "true" || value === "false") {
+            acc[key] = value === "true";
         } else {
-            Object.assign(acc, { [key]: value });
+            acc[key] = value;
         }
-
         return acc;
-    }, {});
+    }, {} as Record<string, any>);
 };
 
 export const ActionsFormGbp: React.FC<ActionsFormProps> = ({

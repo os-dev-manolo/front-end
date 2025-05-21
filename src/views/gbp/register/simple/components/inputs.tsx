@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Checkbox } from "../../../../../components/global";
 import { Input, InputMultiLined } from "../../../../../components/global/input";
 import { Select } from "../../../../../components/global/select";
-import { SingleDatePicker } from "../../../../../components/global/single-date-picker";
+import { SingleDatePicker } from "../../../../../components/global/event-date-picker";
 import {
     PoliticalChain,
     PoliticalParty,
@@ -51,8 +51,13 @@ const Genre = () => (
     />
 );
 
-export const AddressInputs = ({ addressType }: { addressType: "residencial" | "comercial" }) => {
-    const prefix = addressType === "residencial" ? "residencial_" : "comercial_";
+export const AddressInputs = ({
+    addressType,
+}: {
+    addressType: "residencial" | "comercial";
+}) => {
+    const prefix =
+        addressType === "residencial" ? "residencial_" : "comercial_";
 
     return (
         <>
@@ -62,7 +67,11 @@ export const AddressInputs = ({ addressType }: { addressType: "residencial" | "c
             <Input name={`${prefix}bairro`} type="text" label="Bairro" />
             <Input name={`${prefix}endereco`} type="text" label="Endereço" />
             <Input name={`${prefix}numero`} type="text" label="Número" />
-            <Input name={`${prefix}complemento`} type="text" label="Complemento" />
+            <Input
+                name={`${prefix}complemento`}
+                type="text"
+                label="Complemento"
+            />
         </>
     );
 };
@@ -109,7 +118,6 @@ const UpdatedAt = () => (
     <SingleDatePicker name="atualizado_em" label="Registro atualizado em" />
 );
 
-
 type AddressType = "residencial" | "comercial";
 
 export const AddressTypeSwitcher = ({
@@ -136,9 +144,10 @@ export const AddressTypeSwitcher = ({
     );
 };
 
-
 const AddressSection = () => {
-    const [addressType, setAddressType] = useState<"residencial" | "comercial">("residencial");
+    const [addressType, setAddressType] = useState<"residencial" | "comercial">(
+        "residencial"
+    );
 
     return (
         <>
@@ -225,9 +234,6 @@ const isPolitician = () => (
     />
 );
 
-
-
-
 const havePublicJob = BooleanSelect("cargo_publico", "Possui cargo público?");
 
 export const FilterInputs = [Id, Name, CreatedAt, UpdatedAt];
@@ -252,7 +258,6 @@ export const CreateInputs = [
     isPolitician,
     Newsletter,
     Observation,
-
 ];
 
 export const UpdateInputs = [

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Checkbox } from "../../../../../components/global";
 import { Input, InputMultiLined } from "../../../../../components/global/input";
 import { Select } from "../../../../../components/global/select";
-import { SingleDatePicker } from "../../../../../components/global/single-date-picker";
+import { SingleDatePicker } from "../../../../../components/global/event-date-picker";
 
 const Name = () => <Input name="nome" label="Nome completo" type="text" />;
 const BirthDate = () => <Input name="nascimento" label="Nascimento" type="date" />;

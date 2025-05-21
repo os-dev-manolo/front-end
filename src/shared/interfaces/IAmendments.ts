@@ -11,4 +11,5 @@ export interface IAmendmentsResponse {
     indicacao: string;
     criado_em: Date;
     atualizado_em: Date;
+    valor_estimado: number;
 }

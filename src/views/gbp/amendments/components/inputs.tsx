@@ -1,5 +1,5 @@
 import { Input, Select } from "../../../../components/global";
-import { SingleDatePicker } from "../../../../components/global/single-date-picker";
+import { SingleDatePicker } from "../../../../components/global/event-date-picker";
 
 const Id = () => <Input name="id" type="number" label="Id" />;
 
@@ -27,6 +27,10 @@ const City = () => <Input name="cidade" type="text" label="Cidade" />;
 
 const MicroRegion = () => (
     <Input name="microrregiao" type="text" label="Microrregiao" />
+);
+
+const EstimatedValue = () => (
+    <Input name="valor_estimado" type="number" label="Valor Estimado" />
 );
 
 const CreatedAt = () => <SingleDatePicker name="criado_em" label="Criado em" />;
@@ -153,6 +157,7 @@ export const FilterInputs = [
     YearAmendment,
     City,
     MicroRegion,
+    EstimatedValue,
 ];
 
 export const CreateInputs = [
@@ -168,6 +173,8 @@ export const CreateInputs = [
     YearAmendment,
     City,
     MicroRegion,
+    EstimatedValue,
+    CreatedAt,
 ];
 
 export const UpdateInputs = [
@@ -183,4 +190,5 @@ export const UpdateInputs = [
     YearAmendment,
     City,
     MicroRegion,
+    EstimatedValue,
 ];

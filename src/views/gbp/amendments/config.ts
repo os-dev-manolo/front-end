@@ -16,5 +16,6 @@ export const Config: IGbpStandardPageConfig<IAmendmentsResponse> = {
         indicacao: { label: "indicacao", fieldType: "text" },
         criado_em: { label: "Criado em", fieldType: "date" },
         atualizado_em: { label: "Atualizado em", fieldType: "date" },
+        valor_estimado: { label: "Valor Estimado", fieldType: "number" },
     },
 };

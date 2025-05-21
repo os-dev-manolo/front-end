@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Input, Select } from "../../../../components/global";
-import { SingleDatePicker } from "../../../../components/global/single-date-picker";
+import { SingleDatePicker } from "../../../../components/global/event-date-picker";
 import { PoliticalChain } from "../../../../shared/interfaces/IPoliticalChains";
 import { SelectOptions } from "../../../../shared/interfaces/ISelectOptions";
 import { StandardGbpApiService } from "../../../../shared/services/api/standard-gbp-api.service";

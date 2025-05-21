@@ -20,7 +20,7 @@ export type Person = {
     criado_em: Date;
     atualizado_em: Date;
     address: IAdress;
-    //Allan: a partir da linha 30 é cadastro completo
+    // Allan: a partir da linha 30 é cadastro completo
     // Adicionados como opcionais
     correspondencia: string;
     foto: string;

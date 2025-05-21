@@ -39,5 +39,5 @@ export type IGrpStandardPageConfig<T> = {
 
 export type IGbpStandardPageConfig<T> = {
     api: { path: string };
-    fields: Partial<Record<keyof T, FieldsType>>; //Allan: Adicionado o Partial pra usar o mesmo iPerson tanto no componente de cadastro simples quanto o completo
+    fields: Partial<Record<keyof T, FieldsType>>; // Allan: Adicionado o Partial pra usar o mesmo iPerson tanto no componente de cadastro simples quanto o completo
 };

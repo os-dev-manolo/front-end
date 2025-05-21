@@ -1,5 +1,5 @@
 import { Input, Select } from "../../../../components/global";
-import { SingleDatePicker } from "../../../../components/global/single-date-picker";
+import { SingleDatePicker } from "../../../../components/global/event-date-picker";
 
 const Id = () => <Input name="id" type="number" label="Id" />;
 

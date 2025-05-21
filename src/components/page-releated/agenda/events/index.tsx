@@ -9,7 +9,7 @@ import ReactDatePicker from "react-datepicker";
 import { MdTextSnippet, MdTitle } from "react-icons/md";
 import { showToast } from "../../../global/toast";
 import { Checkbox, DatePicker, Input, MainButton } from "../../../global";
-import { SingleDatePicker } from "../../../global/single-date-picker";
+import { SingleDatePicker } from "../../../global/event-date-picker";
 import { UserService } from "../../../../shared/services/api/user-api.service";
 import { AgendaApiService } from "../../../../shared/services/api/agenda-api-service";
 import { IAgendaEvent } from "../../../../shared/interfaces/IEvent";

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Input, Select } from "../../../../components/global";
-import { SingleDatePicker } from "../../../../components/global/single-date-picker";
+import { SingleDatePicker } from "../../../../components/global/event-date-picker";
 import {
     Politic,
     PoliticalChain,
