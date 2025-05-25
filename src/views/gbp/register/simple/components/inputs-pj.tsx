@@ -16,7 +16,32 @@ const Fundacao = () => (
     <Input name="fundacao" type="date" label="Data de Fundação" />
 );
 
-const CNPJ = () => <Input name="cnpj" type="text" label="CNPJ" />;
+function formatCnpj(value: string): string {
+    return value
+        .replace(/\D/g, "")
+        .replace(/^(\d{2})(\d)/, "$1.$2")
+        .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/\.(\d{3})(\d)/, ".$1/$2")
+        .replace(/(\d{4})(\d)/, "$1-$2")
+        .slice(0, 18); // Limita ao tamanho de um CNPJ formatado
+}
+
+const CNPJ = () => {
+    const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatCnpj(e.target.value);
+        e.target.value = formatted;
+    };
+
+    return (
+        <Input
+            name="cnpj"
+            type="text"
+            label="CNPJ"
+            onChange={handleCnpjChange}
+            maxLength={18}
+        />
+    );
+};
 
 const Email = () => (
     <Input name="email" type="text" label="Email institucional" />
@@ -26,13 +51,57 @@ const EmailComercial = () => (
     <Input name="email_comercial" type="text" label="Email comercial" />
 );
 
-const TelefonePrincipal = () => (
-    <Input name="telefone_principal" type="text" label="Telefone principal" />
-);
+function formatPhone(value: string): string {
+    const cleaned = value.replace(/\D/g, "").slice(0, 11); // remove não dígitos, limita a 11
 
-const TelefoneSecundario = () => (
-    <Input name="telefone_secundario" type="text" label="Telefone secundário" />
-);
+    if (cleaned.length <= 10) {
+        // Telefone fixo: (99) 9999-9999
+        return cleaned
+            .replace(/^(\d{2})(\d)/, "($1) $2")
+            .replace(/(\d{4})(\d)/, "$1-$2");
+    }
+
+    return (
+        cleaned
+            // Celular: (99) 99999-9999
+            .replace(/^(\d{2})(\d)/, "($1) $2")
+            .replace(/(\d{5})(\d)/, "$1-$2")
+    );
+}
+
+const TelefonePrincipal = () => {
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatPhone(e.target.value);
+        e.target.value = formatted;
+    };
+
+    return (
+        <Input
+            name="telefone_principal"
+            type="text"
+            label="Telefone principal"
+            onChange={handlePhoneChange}
+            maxLength={15}
+        />
+    );
+};
+
+const TelefoneSecundario = () => {
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatPhone(e.target.value);
+        e.target.value = formatted;
+    };
+
+    return (
+        <Input
+            name="telefone_secundario"
+            type="text"
+            label="Telefone secundário"
+            onChange={handlePhoneChange}
+            maxLength={15}
+        />
+    );
+};
 
 const CriadoEm = () => (
     <SingleDatePicker name="criado_em" label="Registro criado em" />

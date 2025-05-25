@@ -13,7 +13,34 @@ const RazaoSocial = () => (
 const NomeFantasia = () => (
     <Input name="nome_fantasia" type="text" label="Nome Fantasia" />
 );
-const CNPJ = () => <Input name="cnpj" type="text" label="CNPJ" />;
+
+function formatCnpj(value: string): string {
+    return value
+        .replace(/\D/g, "")
+        .replace(/^(\d{2})(\d)/, "$1.$2")
+        .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/\.(\d{3})(\d)/, ".$1/$2")
+        .replace(/(\d{4})(\d)/, "$1-$2")
+        .slice(0, 18); // Limita ao tamanho de um CNPJ formatado
+}
+
+const CNPJ = () => {
+    const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatCnpj(e.target.value);
+        e.target.value = formatted;
+    };
+
+    return (
+        <Input
+            name="cnpj"
+            type="text"
+            label="CNPJ"
+            onChange={handleCnpjChange}
+            maxLength={18}
+        />
+    );
+};
+
 const InscricaoEstadual = () => (
     <Input name="inscricao_estadual" type="text" label="Inscrição Estadual" />
 );
@@ -42,19 +69,82 @@ const CapitalSocial = () => (
 
 // ===== Contato =====
 
+const Email = () => (
+    <Input name="email" type="text" label="Email institucional" />
+);
+
 const EmailComercial = () => (
     <Input name="email_comercial" type="text" label="Email Comercial" />
 );
-const TelefonePrincipal = () => (
-    <Input name="telefone_principal" type="text" label="Telefone Principal" />
-);
-const TelefoneSecundario = () => (
-    <Input name="telefone_secundario" type="text" label="Telefone Secundário" />
-);
+
+function formatPhone(value: string): string {
+    const cleaned = value.replace(/\D/g, "").slice(0, 11); // remove não dígitos, limita a 11
+
+    if (cleaned.length <= 10) {
+        // Telefone fixo: (99) 9999-9999
+        return cleaned
+            .replace(/^(\d{2})(\d)/, "($1) $2")
+            .replace(/(\d{4})(\d)/, "$1-$2");
+    }
+
+    return (
+        cleaned
+            // Celular: (99) 99999-9999
+            .replace(/^(\d{2})(\d)/, "($1) $2")
+            .replace(/(\d{5})(\d)/, "$1-$2")
+    );
+}
+
+const TelefonePrincipal = () => {
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatPhone(e.target.value);
+        e.target.value = formatted;
+    };
+
+    return (
+        <Input
+            name="telefone_principal"
+            type="text"
+            label="Telefone principal"
+            onChange={handlePhoneChange}
+            maxLength={15}
+        />
+    );
+};
+
+const TelefoneSecundario = () => {
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatPhone(e.target.value);
+        e.target.value = formatted;
+    };
+
+    return (
+        <Input
+            name="telefone_secundario"
+            type="text"
+            label="Telefone secundário"
+            onChange={handlePhoneChange}
+            maxLength={15}
+        />
+    );
+};
+
 const TelefoneTipo = () => (
-    <Input name="telefone_tipo" type="text" label="Tipo de Telefone" />
+    <Select
+        name="telefone_tipo"
+        label="Tipo Telefone"
+        options={[
+            {
+                label: "Celular",
+                value: "Celular",
+            },
+            {
+                label: "Fixo",
+                value: "Fixo",
+            }
+        ]}
+    />
 );
-const TelefoneDDD = () => <Input name="telefone_ddd" type="text" label="DDD" />;
 const TelefoneRamal = () => (
     <Input name="telefone_ramal" type="text" label="Ramal" />
 );
@@ -199,11 +289,11 @@ export const CreateInputs = [
     AtividadePrincipal,
     AtividadesSecundarias,
     CapitalSocial,
+    Email,
     EmailComercial,
+    TelefoneTipo,
     TelefonePrincipal,
     TelefoneSecundario,
-    TelefoneTipo,
-    TelefoneDDD,
     TelefoneRamal,
     TelefoneOperadora,
     WebsiteTipo,

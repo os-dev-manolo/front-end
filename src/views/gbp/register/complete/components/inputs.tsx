@@ -29,14 +29,74 @@ const Photo = () => (
 );
 
 // Telefones
-const PhoneType = () => <Input name="telefone_tipo" label="Tipo" type="text" />;
-const DDD = () => <Input name="telefone_ddd" label="DDD" type="text" />;
-const Phone = () => (
-    <Input name="telefone_principal" label="Telefone principal" type="text" />
+const PhoneType = () => (
+    <Select
+        name="telefone_tipo"
+        label="Tipo Telefone"
+        options={[
+            {
+                label: "Celular",
+                value: "Celular",
+            },
+            {
+                label: "Fixo",
+                value: "Fixo",
+            }
+        ]}
+    />
 );
-const SecondaryPhone = () => (
-    <Input name="telefone_secundario" label="Telefone secundário" type="text" />
-);
+
+function formatPhone(value: string): string {
+    const cleaned = value.replace(/\D/g, "").slice(0, 11); // remove não dígitos, limita a 11
+
+    if (cleaned.length <= 10) {
+        // Telefone fixo: (99) 9999-9999
+        return cleaned
+            .replace(/^(\d{2})(\d)/, "($1) $2")
+            .replace(/(\d{4})(\d)/, "$1-$2");
+    }
+
+    return (
+        cleaned
+            // Celular: (99) 99999-9999
+            .replace(/^(\d{2})(\d)/, "($1) $2")
+            .replace(/(\d{5})(\d)/, "$1-$2")
+    );
+}
+
+const Phone = () => {
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatPhone(e.target.value);
+        e.target.value = formatted;
+    };
+
+    return (
+        <Input
+            name="telefone_principal"
+            type="text"
+            label="Telefone principal"
+            onChange={handlePhoneChange}
+            maxLength={15}
+        />
+    );
+};
+
+const SecondaryPhone = () => {
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatPhone(e.target.value);
+        e.target.value = formatted;
+    };
+
+    return (
+        <Input
+            name="telefone_secundario"
+            type="text"
+            label="Telefone secundário"
+            onChange={handlePhoneChange}
+            maxLength={15}
+        />
+    );
+};
 const Ramal = () => <Input name="telefone_ramal" label="Ramal" type="text" />;
 const Operator = () => (
     <Input name="telefone_operadora" label="Operadora" type="text" />
@@ -122,9 +182,28 @@ const BasePolitica = () => (
     <Input name="base_politica" label="Base política" type="text" />
 );
 const Candidato = () => <Checkbox name="candidato" label="É candidato(a)?" />;
-const Cargo = () => (
-    <Input name="cargo_publico" label="Cargo público" type="text" />
-);
+
+const BooleanSelect = (name: string, label: string) => () =>
+    (
+        <Select
+            name={name}
+            label={label}
+            options={[
+                {
+                    label: "Possui",
+                    value: "true",
+                },
+                {
+                    label: "Não possui",
+                    value: "false",
+                },
+            ]}
+        />
+    );
+
+
+const Cargo = BooleanSelect("cargo_publico", "Possui cargo público?");
+
 const Classificacao = () => (
     <Input name="classificacao" label="Classificação" type="text" />
 );
@@ -177,8 +256,31 @@ const Newsletter = () => (
 );
 
 // Documentos
+function formatCpf(value: string): string {
+    return value
+        .replace(/\D/g, "")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}
+
 const RG = () => <Input name="rg" label="RG" type="text" />;
-const CPF = () => <Input name="cpf" label="CPF" type="text" />;
+const CPF = () => {
+    const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatCpf(e.target.value);
+        e.target.value = formatted;
+    };
+
+    return (
+        <Input
+            name="cpf"
+            type="text"
+            label="CPF"
+            onChange={handleCpfChange}
+            maxLength={14}
+        />
+    );
+};
 const Zona = () => <Input name="zona" label="Zona eleitoral" type="text" />;
 const Secao = () => <Input name="secao" label="Seção eleitoral" type="text" />;
 const Titulo = () => (
@@ -200,7 +302,6 @@ export const CreateInputs = [
     Correspondence,
     Photo,
     PhoneType,
-    DDD,
     Phone,
     SecondaryPhone,
     Ramal,
