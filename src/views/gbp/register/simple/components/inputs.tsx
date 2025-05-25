@@ -94,7 +94,30 @@ const BooleanSelect = (name: string, label: string) => () =>
         />
     );
 
-const Document = () => <Input name="cpf" type="text" label="CPF" />;
+function formatCpf(value: string): string {
+    return value
+        .replace(/\D/g, "")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}
+
+const Document = () => {
+    const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatCpf(e.target.value);
+        e.target.value = formatted;
+    };
+
+    return (
+        <Input
+            name="cpf"
+            type="text"
+            label="CPF"
+            onChange={handleCpfChange}
+            maxLength={14}
+        />
+    );
+};
 
 // const Region = () => <Input name="regiao" type="text" label="Região" />;
 
@@ -102,13 +125,57 @@ const Document = () => <Input name="cpf" type="text" label="CPF" />;
 //     <Input name="microrregiao" type="text" label="Microrregião" />
 // );
 
-const MainPhone = () => (
-    <Input name="telefone_principal" type="text" label="Telefone principal" />
-);
+function formatPhone(value: string): string {
+    const cleaned = value.replace(/\D/g, "").slice(0, 11); // remove não dígitos, limita a 11
 
-const SecondaryPhone = () => (
-    <Input name="telefone_secundario" type="text" label="Telefone secundário" />
-);
+    if (cleaned.length <= 10) {
+        // Telefone fixo: (99) 9999-9999
+        return cleaned
+            .replace(/^(\d{2})(\d)/, "($1) $2")
+            .replace(/(\d{4})(\d)/, "$1-$2");
+    }
+
+    return (
+        cleaned
+            // Celular: (99) 99999-9999
+            .replace(/^(\d{2})(\d)/, "($1) $2")
+            .replace(/(\d{5})(\d)/, "$1-$2")
+    );
+}
+
+const MainPhone = () => {
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatPhone(e.target.value);
+        e.target.value = formatted;
+    };
+
+    return (
+        <Input
+            name="telefone_principal"
+            type="text"
+            label="Telefone principal"
+            onChange={handlePhoneChange}
+            maxLength={15}
+        />
+    );
+};
+
+const SecondaryPhone = () => {
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatPhone(e.target.value);
+        e.target.value = formatted;
+    };
+
+    return (
+        <Input
+            name="telefone_secundario"
+            type="text"
+            label="Telefone secundário"
+            onChange={handlePhoneChange}
+            maxLength={15}
+        />
+    );
+};
 
 const CreatedAt = () => (
     <SingleDatePicker name="criado_em" label="Registro criado em" />

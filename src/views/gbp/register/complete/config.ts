@@ -15,7 +15,10 @@ export const Config: IGbpStandardPageConfig<Person> = {
         telefone_tipo: { label: "Tipo", fieldType: "text" },
         telefone_ddd: { label: "DDD", fieldType: "text" },
         telefone_principal: { label: "Telefone principal", fieldType: "text" },
-        telefone_secundario: { label: "Telefone secundário", fieldType: "text" },
+        telefone_secundario: {
+            label: "Telefone secundário",
+            fieldType: "text",
+        },
         telefone_ramal: { label: "Ramal", fieldType: "text" },
         telefone_operadora: { label: "Operadora", fieldType: "text" },
 
@@ -26,14 +29,20 @@ export const Config: IGbpStandardPageConfig<Person> = {
         website_link: { label: "Website", fieldType: "text" },
 
         // Endereço residencial
-        residencial_endereco: { label: "Endereço residencial", fieldType: "text" },
+        residencial_endereco: {
+            label: "Endereço residencial",
+            fieldType: "text",
+        },
         residencial_cep: { label: "CEP residencial", fieldType: "text" },
         residencial_estado: { label: "Estado", fieldType: "text" },
         residencial_cidade: { label: "Cidade", fieldType: "text" },
         residencial_bairro: { label: "Bairro", fieldType: "text" },
         residencial_numero: { label: "Número", fieldType: "text" },
         residencial_complemento: { label: "Complemento", fieldType: "text" },
-        residencial_microrregional: { label: "Microrregião", fieldType: "text" },
+        residencial_microrregional: {
+            label: "Microrregião",
+            fieldType: "text",
+        },
         residencial_regiao: { label: "Região", fieldType: "text" },
 
         // Endereço comercial
@@ -66,11 +75,17 @@ export const Config: IGbpStandardPageConfig<Person> = {
         orientacao_sexual: { label: "Orientação sexual", fieldType: "text" },
         partido: { label: "Partido", fieldType: "text" },
         profissao: { label: "Profissão", fieldType: "text" },
-        pronome_tratamento: { label: "Pronome de tratamento", fieldType: "text" },
+        pronome_tratamento: {
+            label: "Pronome de tratamento",
+            fieldType: "text",
+        },
         raca_cor: { label: "Raça/Cor", fieldType: "text" },
         religiao: { label: "Religião", fieldType: "text" },
         cargo_etiqueta: { label: "Cargo etiqueta", fieldType: "text" },
-        presidente_partidario: { label: "Presidente partidário", fieldType: "text" },
+        presidente_partidario: {
+            label: "Presidente partidário",
+            fieldType: "text",
+        },
         newsletter: { label: "Autoriza newsletter", fieldType: "text" },
 
         // Documentos
@@ -84,6 +99,5 @@ export const Config: IGbpStandardPageConfig<Person> = {
         nome_pai: { label: "Nome do pai", fieldType: "text" },
 
         // Filtros e arrays finais
-
-    }
+    },
 };

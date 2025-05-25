@@ -8,15 +8,23 @@ import { SingleDatePicker } from "../../../../../components/global/event-date-pi
 
 const Id = () => <Input name="id" type="number" label="Id" />;
 
-const RazaoSocial = () => <Input name="razao_social" type="text" label="Razão Social" />;
+const RazaoSocial = () => (
+    <Input name="razao_social" type="text" label="Razão Social" />
+);
 
-const Fundacao = () => <Input name="fundacao" type="date" label="Data de Fundação" />;
+const Fundacao = () => (
+    <Input name="fundacao" type="date" label="Data de Fundação" />
+);
 
 const CNPJ = () => <Input name="cnpj" type="text" label="CNPJ" />;
 
-const Email = () => <Input name="email" type="text" label="Email institucional" />;
+const Email = () => (
+    <Input name="email" type="text" label="Email institucional" />
+);
 
-const EmailComercial = () => <Input name="email_comercial" type="text" label="Email comercial" />;
+const EmailComercial = () => (
+    <Input name="email_comercial" type="text" label="Email comercial" />
+);
 
 const TelefonePrincipal = () => (
     <Input name="telefone_principal" type="text" label="Telefone principal" />
@@ -69,25 +77,34 @@ const RelacaoInstitucional = () => (
     />
 );
 
-const BooleanSelect = (name: string, label: string) => () => (
-    <Select
-        name={name}
-        label={label}
-        options={[
-            { label: "Sim", value: "true" },
-            { label: "Não", value: "false" },
-        ]}
-    />
-);
+const BooleanSelect = (name: string, label: string) => () =>
+    (
+        <Select
+            name={name}
+            label={label}
+            options={[
+                { label: "Sim", value: "true" },
+                { label: "Não", value: "false" },
+            ]}
+        />
+    );
 
-const PossuiRepresentante = BooleanSelect("possui_representante", "Possui representante?");
+const PossuiRepresentante = BooleanSelect(
+    "possui_representante",
+    "Possui representante?"
+);
 
 // ===== Endereço =====
 
 type AddressType = "residencial" | "comercial";
 
-export const AddressInputs = ({ addressType }: { addressType: AddressType }) => {
-    const prefix = addressType === "residencial" ? "residencial_" : "comercial_";
+export const AddressInputs = ({
+    addressType,
+}: {
+    addressType: AddressType;
+}) => {
+    const prefix =
+        addressType === "residencial" ? "residencial_" : "comercial_";
 
     return (
         <>
@@ -97,7 +114,11 @@ export const AddressInputs = ({ addressType }: { addressType: AddressType }) => 
             <Input name={`${prefix}bairro`} type="text" label="Bairro" />
             <Input name={`${prefix}endereco`} type="text" label="Endereço" />
             <Input name={`${prefix}numero`} type="text" label="Número" />
-            <Input name={`${prefix}complemento`} type="text" label="Complemento" />
+            <Input
+                name={`${prefix}complemento`}
+                type="text"
+                label="Complemento"
+            />
         </>
     );
 };

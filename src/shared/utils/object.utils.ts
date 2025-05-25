@@ -30,7 +30,7 @@ export function objectKeyBy<T, K extends keyof T>(
 //             if (key !== by) newObject[key] = value;
 //         } else {
 //             if (typeof by === "object" && !Array.isArray(object)) newObject[key] = value
-//             else 
+//             else
 //         }
 //     });
 
