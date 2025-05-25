@@ -8,7 +8,7 @@ export const HeaderGbp: React.FC = () => {
     return (
         <div
             className="px-4 absolute h-12 ml-40 w-100 bg-transparent flex items-center justify-between"
-            style={{ maxWidth: "calc(100vw - 160px)" }}
+            style={{ maxWidth: "calc(100vw - 180px)" }}
         >
             <div />
             <div className="flex space-x-5 text-purple-700 hover:text-orange-500">

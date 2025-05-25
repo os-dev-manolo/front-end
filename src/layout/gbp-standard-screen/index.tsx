@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { Table } from "../../components/page-releated/grp-standard-screen/table";
+// import { Table } from "../../components/page-releated/grp-standard-screen/table";
 
 import {
     SearchParamsEnum,
@@ -21,6 +21,9 @@ import {
     ActionsFormProps,
 } from "../../components/page-releated/gbp-standard-screen/actions-form";
 import { HeaderGbp } from "../../components/page-releated/gbp-standard-screen/header";
+import { TableTest } from "../../components/page-releated/grp-standard-screen/table/table";
+import { ColumnSelector } from "../../components/page-releated/grp-standard-screen/table/selector";
+import { Fields, FieldsHandles } from "./fields";
 
 type IActions = ActionsButtonsEnum | string;
 
@@ -53,6 +56,7 @@ interface GbpStandardScreenProps<T> {
     columns: StandardGbpColumns<T>;
     pagination?: IPaginate;
     reFetch(force?: boolean): void;
+    className?: string;
 }
 
 export function GbpStandardScreen<T>({
@@ -66,9 +70,11 @@ export function GbpStandardScreen<T>({
     dataSource,
     loading,
     reFetch,
+    className,
 }: GbpStandardScreenProps<T>) {
     const actionsModalRef = useRef<ModalHandles>(null);
     const filtersRef = useRef<FiltersHandles>(null);
+    const fieldsRef = useRef<FieldsHandles>(null);
 
     const [actionForm, setActionForm] = useState<{
         type: SearchParamsScreenEnum;
@@ -108,6 +114,13 @@ export function GbpStandardScreen<T>({
 
     const doAfterActionClick = async (action: IActions, id: number) => {
         switch (action) {
+            case ActionsButtonsEnum.DETAILS:
+                actionsModalRef.current?.open();
+                setActionForm({
+                    type: action as unknown as SearchParamsScreenEnum,
+                    id,
+                });
+                break;
             case ActionsButtonsEnum.CLONE:
             case ActionsButtonsEnum.EDIT:
                 actionsModalRef.current?.open();
@@ -145,10 +158,28 @@ export function GbpStandardScreen<T>({
         [actionForm]
     );
 
+    const handleFieldsState = useCallback(() => {
+        const fieldsAlreadyOpened =
+            searchParams.get(SearchParamsScreenEnum.FIELDS) === "true";
+
+        if (fieldsAlreadyOpened) {
+            fieldsRef.current?.close();
+        } else {
+            fieldsRef.current?.open();
+        }
+
+        handleSearchParams(
+            SearchParamsScreenEnum.FIELDS,
+            fieldsAlreadyOpened ? "false" : "true"
+        );
+    }, [handleSearchParams, searchParams]);
+
     const columns = rawColumns({
         actionClick: doAfterActionClick,
         columnClick: doAfterHeadClick,
     });
+
+    const [visibleColumns, setVisibleColumns] = useState(columns);
 
     /**
      * @description Controla os estado dos filtros
@@ -182,6 +213,7 @@ export function GbpStandardScreen<T>({
         <>
             <HeaderGbp
                 title={title}
+                doAfterFieldsClick={handleFieldsState}
                 doAfterFilterClick={handleFilterState}
                 doAfterRegisterClick={() =>
                     handleActionFormState(SearchParamsScreenEnum.REGISTER)
@@ -189,6 +221,20 @@ export function GbpStandardScreen<T>({
             />
 
             <Filters ref={filtersRef}>{filters?.fields}</Filters>
+
+            <Fields ref={fieldsRef}>
+                <ColumnSelector
+                    allColumns={columns}
+                    visibleColumns={visibleColumns}
+                    onChange={setVisibleColumns}
+                />
+            </Fields>
+
+            {/* <ColumnSelector
+                allColumns={columns}
+                visibleColumns={visibleColumns}
+                onChange={setVisibleColumns}
+            /> */}
 
             <Modal
                 handleCloseModal={handleActionFormState}
@@ -215,7 +261,11 @@ export function GbpStandardScreen<T>({
                             isEdit ? update?.validator : register?.validator
                         }
                     >
-                        <div className="py-6 grid grid-cols-2 gap-4">
+                        <div
+                            className={
+                                className || "py-6 grid grid-cols-2 gap-4"
+                            }
+                        >
                             {isEdit ? update?.fields : register?.fields}
                         </div>
                     </ActionsFormGbp>
@@ -225,7 +275,18 @@ export function GbpStandardScreen<T>({
             {loading && <LocalLoading />}
 
             {columns && dataSource && (
-                <Table columns={columns} dataSource={dataSource} />
+                <>
+                    {/* <ColumnSelector
+                        allColumns={columns}
+                        visibleColumns={visibleColumns}
+                        onChange={setVisibleColumns}
+                    /> 
+                    <br /> */}
+                    <TableTest
+                        columns={visibleColumns}
+                        dataSource={dataSource}
+                    />
+                </>
             )}
 
             {pagination && (

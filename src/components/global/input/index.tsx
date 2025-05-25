@@ -17,7 +17,6 @@ import {
     LabelContainerTextArea,
     ContainerTextArea,
 } from "./styles";
-import environments from "../../../environments";
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     name: string;
@@ -31,10 +30,11 @@ export interface TextAreaProps
     icon?: React.ComponentType<IconBaseProps>;
 }
 
-export const Input: React.FC<InputProps> = ({
+export const Input: React.FC<InputProps & { readOnlyMode?: boolean }> = ({
     name,
     icon: Icon,
     label,
+    readOnlyMode = false,
     ...rest
 }) => {
     const inputRef = useRef(null);
@@ -69,17 +69,20 @@ export const Input: React.FC<InputProps> = ({
             )}
             {Icon && <Icon size={20} color={error && "red"} />}
 
-            <input ref={inputRef} {...rest} onFocus={onFocus} />
+            <input
+                ref={inputRef}
+                {...rest}
+                onFocus={onFocus}
+                readOnly={readOnlyMode}
+                disabled={readOnlyMode}
+            />
         </Container>
     );
 };
 
-export const InputMultiLined: React.FC<TextAreaProps> = ({
-    name,
-    icon: Icon,
-    label,
-    ...rest
-}) => {
+export const InputMultiLined: React.FC<
+    TextAreaProps & { readOnlyMode?: boolean }
+> = ({ name, icon: Icon, label, readOnlyMode = false, ...rest }) => {
     const inputRef = useRef(null);
     const { fieldName, registerField, error, clearError } = useField(name);
 
@@ -112,7 +115,13 @@ export const InputMultiLined: React.FC<TextAreaProps> = ({
             )}
             {Icon && <Icon size={20} color={error && "red"} />}
 
-            <textarea ref={inputRef} {...rest} onFocus={onFocus} />
+            <textarea
+                ref={inputRef}
+                {...rest}
+                onFocus={onFocus}
+                readOnly={readOnlyMode}
+                disabled={readOnlyMode}
+            />
         </ContainerTextArea>
     );
 };
@@ -123,12 +132,9 @@ export interface MaskInputProps extends MaskProps {
     icon?: React.ComponentType<IconBaseProps>;
 }
 
-export const InputMask: React.FC<MaskInputProps> = ({
-    name,
-    icon: Icon,
-    label,
-    ...rest
-}) => {
+export const InputMask: React.FC<
+    MaskInputProps & { readOnlyMode?: boolean }
+> = ({ name, icon: Icon, label, readOnlyMode = false, ...rest }) => {
     const inputRef = useRef(null);
     const { fieldName, registerField, defaultValue, clearError, error } =
         useField(name);
@@ -172,6 +178,8 @@ export const InputMask: React.FC<MaskInputProps> = ({
                 ref={inputRef}
                 defaultValue={defaultValue}
                 onFocus={onFocus}
+                readOnly={readOnlyMode}
+                disabled={readOnlyMode}
                 {...rest}
             />
         </Container>

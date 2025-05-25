@@ -21,6 +21,7 @@ import politics from "../../views/gbp/politics";
 import officials from "../../views/gbp/officials";
 import city from "../../views/gbp/city";
 import { CompleteRegisterPJ } from "../../views/gbp/register/complete/pj";
+import amendmentsApi from "../../views/gbp/amendments-api";
 
 interface IRoutesConfig {
     public: IGbpRoutesConfig[];
@@ -127,6 +128,11 @@ export const RoutesConfigGbp: IRoutesConfig = {
                 key: "visit-cities",
                 path: `${GbpModulesPathEnum.REGISTER}/${GbpMenusPathEnum.GBP_REGISTER_POLITICS}/${GbpSubMenusPathEnum.CITIES}`,
                 element: city,
+            },
+            {
+                key: "amendments-api",
+                path: `${GbpModulesPathEnum.REGISTER}/${GbpMenusPathEnum.GBP_REGISTER_AMENDMENT_API}/${GbpSubMenusPathEnum.AMENDMENT_API}`,
+                element: amendmentsApi,
             },
         ],
     },

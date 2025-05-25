@@ -1,5 +1,5 @@
 import { IconType } from "react-icons";
-import { FaEdit, FaTrashAlt, FaRegClone } from "react-icons/fa";
+import { FaEdit, FaTrashAlt, FaRegClone, FaEye } from "react-icons/fa";
 import { ActionsButtonsEnum } from "../../../../shared/enums/actions-buttons.enum";
 
 import { ActionButton } from "./actions-button";
@@ -66,6 +66,18 @@ export const CloneAction = ({
         doAfterClick,
     });
 
+export const DetailsAction = ({
+    value,
+    doAfterClick,
+}: Pick<ActionsProps, "value" | "doAfterClick">) =>
+    ActionMaker({
+        icon: FaEye,
+        tooltipText: "Visualizar",
+        color: "black",
+        value,
+        doAfterClick,
+    });
+
 export const DefaultActions = ({
     value,
     doAfterClick,
@@ -80,6 +92,12 @@ export const DefaultActions = ({
     return (
         <div className="flex space-x-3.5">
             {leftActions}
+            <DetailsAction
+                value={value}
+                doAfterClick={(id) =>
+                    doAfterClick(ActionsButtonsEnum.DETAILS, id as number)
+                }
+            />
             <CloneAction
                 value={value}
                 doAfterClick={(id) =>

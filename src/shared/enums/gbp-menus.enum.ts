@@ -16,7 +16,8 @@ export enum GbpSubMenusPathEnum {
     NEW = "novo",
     RETURN = "resposta",
 
-    AMENDMENT = "emendas",
+    AMENDMENT = "emenda",
+    AMENDMENT_API = "emendas-api",
     CANDIDATES = "candidatos",
     CITIES = "cidades",
 
@@ -57,4 +58,5 @@ export enum GbpMenusPathEnum {
     GRP_ACCESS = "grp_access",
     GRP_LOGS = "grp_logs",
     GOV_GOALS = "gov_goals",
+    GBP_REGISTER_AMENDMENT_API = "emendas_api",
 }

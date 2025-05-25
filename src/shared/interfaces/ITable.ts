@@ -1,7 +1,9 @@
 export interface ITableColumns<T> {
+    width?: any;
     name: string;
     key: string;
     dataKey: keyof T;
+    k?: keyof T;
     render?: (
         value: T[keyof T],
         record: T

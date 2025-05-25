@@ -7,4 +7,5 @@ export type MaskTypes =
     | "currency"
     | "percent"
     | "phone"
-    | "cpfCnpj";
+    | "cpfCnpj"
+    | "formatToFourDigits";
