@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import {
-    ClientLogo,
-    CompanyLogo,
-} from "../../../../shared/assets/logos";
+import { ClientLogo, CompanyLogo } from "../../../../shared/assets/logos";
 
 import { useToggle } from "../../../../shared/hooks/useToggle";
 import { GbpModulesPathEnum } from "../../../../shared/enums/gbp-menus.enum";

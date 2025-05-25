@@ -9,8 +9,6 @@ import tableColumns from "./components/table-columns";
 import { Config } from "./config";
 import { createPerson } from "./validators/create.validator";
 
-
-
 export const CompleteRegister: React.FC = () => {
     const { content, fetch, loading } = useStandardGbpFetch({
         subMenuPath: GbpSubMenusPathEnum.PERSON,

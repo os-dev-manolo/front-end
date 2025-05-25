@@ -17,12 +17,7 @@
         "ecmaVersion": 12,
         "sourceType": "module"
     },
-    "plugins": [
-        "react",
-        "@typescript-eslint",
-        "react-hooks",
-        "prettier"
-    ],
+    "plugins": ["react", "@typescript-eslint", "react-hooks", "prettier"],
     "rules": {
         "no-shadow": "off",
         "@typescript-eslint/no-shadow": "error",
@@ -35,30 +30,30 @@
         "react/function-component-definition": [
             0,
             {
-              "namedComponents": "function-declaration"
+                "namedComponents": "function-declaration"
             }
-          ],
+        ],
         "prettier/prettier": "warn",
         "explicit-module-boundary-types": "off",
         "react/require-default-props": "off",
         "react/jsx-filename-extension": [
             1,
             {
-            "extensions": [
-            ".tsx"
-            ]
+                "extensions": [".tsx"]
             }
         ],
         "no-use-before-define": "off",
-        "@typescript-eslint/no-use-before-define": [
-            "error"
-        ],
+        "@typescript-eslint/no-use-before-define": ["error"],
         "react/react-in-jsx-scope": "off",
-        "import/extensions": ["error", "ignorePackages", { "js": "never", "jsx": "never", "ts": "never", "tsx": "never"}]
+        "import/extensions": [
+            "error",
+            "ignorePackages",
+            { "js": "never", "jsx": "never", "ts": "never", "tsx": "never" }
+        ]
     },
     "settings": {
-      "import/resolver": {
-        "typescript": {}
-      }
+        "import/resolver": {
+            "typescript": {}
+        }
     }
 }

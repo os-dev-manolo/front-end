@@ -5,7 +5,7 @@ export interface ITableColumns<T> {
     render?: (
         value: T[keyof T],
         record: T
-    ) => string | number | React.ReactNode | null ;
+    ) => string | number | React.ReactNode | null;
     headerClick?: (key: keyof T, order: "ASC" | "DESC") => void;
 }
 

@@ -12,7 +12,11 @@ import { Agenda } from "../../views/gbp/agenda";
 import amendments from "../../views/gbp/amendments";
 import politicalChain from "../../views/gbp/political-chain";
 import politicalParty from "../../views/gbp/political-party";
-import { CompleteRegister, SimpleRegisterPF, SimpleRegisterPJ } from "../../views/gbp/register";
+import {
+    CompleteRegister,
+    SimpleRegisterPF,
+    SimpleRegisterPJ,
+} from "../../views/gbp/register";
 import politics from "../../views/gbp/politics";
 import officials from "../../views/gbp/officials";
 import city from "../../views/gbp/city";

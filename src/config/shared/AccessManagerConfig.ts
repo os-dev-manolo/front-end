@@ -36,7 +36,6 @@ export const WebgeoFeaturesLabels: Record<
         order: 10,
         actions: ["read", "update"],
     },
-
 };
 
 export const WebgeoRessourcesLabels: Record<string, string> = {
