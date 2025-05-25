@@ -8,7 +8,6 @@ import {
 } from "../../../../../components/page-releated/grp-standard-screen/actions";
 import { StandardGbpColumns } from "../../../../../layout/gbp-standard-screen";
 import { ActionsButtonsEnum } from "../../../../../shared/enums/actions-buttons.enum";
-import Masks from "../../../../../shared/utils/mask.utils";
 import { LegalPerson } from "../../../../../shared/interfaces/ILegalPerson";
 
 const renderBoolIcon = (bool: boolean) => {

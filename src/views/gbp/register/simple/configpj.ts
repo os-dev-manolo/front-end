@@ -1,19 +1,24 @@
 import { LegalPerson } from "../../../../shared/interfaces/ILegalPerson";
 import { IGbpStandardPageConfig } from "../../../../shared/interfaces/IPageConfig";
 
-
 export const Configpj: IGbpStandardPageConfig<Partial<LegalPerson>> = {
     api: { path: "crud/pessoa-juridica" },
     fields: {
-                // Endereço residencial
-        residencial_endereco: { label: "Endereço residencial", fieldType: "text" },
+        // Endereço residencial
+        residencial_endereco: {
+            label: "Endereço residencial",
+            fieldType: "text",
+        },
         residencial_cep: { label: "CEP residencial", fieldType: "text" },
         residencial_estado: { label: "Estado", fieldType: "text" },
         residencial_cidade: { label: "Cidade", fieldType: "text" },
         residencial_bairro: { label: "Bairro", fieldType: "text" },
         residencial_numero: { label: "Número", fieldType: "text" },
         residencial_complemento: { label: "Complemento", fieldType: "text" },
-        residencial_microrregional: { label: "Microrregião", fieldType: "text" },
+        residencial_microrregional: {
+            label: "Microrregião",
+            fieldType: "text",
+        },
         residencial_regiao: { label: "Região", fieldType: "text" },
 
         // Endereço comercial
@@ -26,7 +31,6 @@ export const Configpj: IGbpStandardPageConfig<Partial<LegalPerson>> = {
         comercial_complemento: { label: "Complemento", fieldType: "text" },
         comercial_microrregional: { label: "Microrregião", fieldType: "text" },
         comercial_regiao: { label: "Região", fieldType: "text" },
-
 
         id: { label: "Código", fieldType: "number" },
         nome_fantasia: { label: "Nome fantasia", fieldType: "text" },

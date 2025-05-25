@@ -4,15 +4,21 @@ import { Person } from "../../../../shared/interfaces/IPerson";
 export const Config: IGbpStandardPageConfig<Partial<Person>> = {
     api: { path: "crud/pessoa-fisica" },
     fields: {
-                // Endereço residencial
-        residencial_endereco: { label: "Endereço residencial", fieldType: "text" },
+        // Endereço residencial
+        residencial_endereco: {
+            label: "Endereço residencial",
+            fieldType: "text",
+        },
         residencial_cep: { label: "CEP residencial", fieldType: "text" },
         residencial_estado: { label: "Estado", fieldType: "text" },
         residencial_cidade: { label: "Cidade", fieldType: "text" },
         residencial_bairro: { label: "Bairro", fieldType: "text" },
         residencial_numero: { label: "Número", fieldType: "text" },
         residencial_complemento: { label: "Complemento", fieldType: "text" },
-        residencial_microrregional: { label: "Microrregião", fieldType: "text" },
+        residencial_microrregional: {
+            label: "Microrregião",
+            fieldType: "text",
+        },
         residencial_regiao: { label: "Região", fieldType: "text" },
 
         // Endereço comercial
@@ -25,7 +31,6 @@ export const Config: IGbpStandardPageConfig<Partial<Person>> = {
         comercial_complemento: { label: "Complemento", fieldType: "text" },
         comercial_microrregional: { label: "Microrregião", fieldType: "text" },
         comercial_regiao: { label: "Região", fieldType: "text" },
-
 
         id: { label: "Código", fieldType: "number" },
         nome: { label: "Nome completo", fieldType: "text" },

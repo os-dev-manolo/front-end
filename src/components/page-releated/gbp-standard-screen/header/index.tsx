@@ -1,7 +1,7 @@
 import React from "react";
 import { IconBaseProps } from "react-icons";
 
-import { FaFilter, FaPlus } from "react-icons/fa";
+import { FaFilter, FaPlus, FaTable } from "react-icons/fa";
 
 interface ButtonProps {
     onClick?(): void;
@@ -24,6 +24,7 @@ interface HeaderProps {
     title: string;
     doAfterFilterClick?(): void;
     doAfterRegisterClick?(): void;
+    doAfterFieldsClick?(): void;
     disableButtons?: boolean;
 }
 
@@ -31,6 +32,7 @@ export const HeaderGbp: React.FC<HeaderProps> = ({
     title,
     doAfterFilterClick,
     doAfterRegisterClick,
+    doAfterFieldsClick,
     disableButtons,
 }) => {
     return (
@@ -38,12 +40,12 @@ export const HeaderGbp: React.FC<HeaderProps> = ({
             <h5 className="text-purple-700 pt-5 pl-4">{title}</h5>
             {!disableButtons && (
                 <section className="pr-4 self-end flex space-x-4">
-                    {/* <Button
-                        onClick={doAfterFilterClick}
-                        Icon={FaTable}
-                        text="campos"
-                    />
                     <Button
+                        onClick={doAfterFieldsClick}
+                        Icon={FaTable}
+                        text="Campos"
+                    />
+                    {/* <Button
                         onClick={doAfterFilterClick}
                         Icon={FaFile}
                         text="relatórios"

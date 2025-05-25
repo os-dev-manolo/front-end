@@ -1,11 +1,13 @@
 export interface ITableColumns<T> {
+    width?: any;
     name: string;
     key: string;
     dataKey: keyof T;
+    k?: keyof T;
     render?: (
         value: T[keyof T],
         record: T
-    ) => string | number | React.ReactNode | null ;
+    ) => string | number | React.ReactNode | null;
     headerClick?: (key: keyof T, order: "ASC" | "DESC") => void;
 }
 

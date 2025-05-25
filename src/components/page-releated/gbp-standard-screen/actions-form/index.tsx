@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-shadow */
+/* eslint-disable no-param-reassign */
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { IconType } from "react-icons";
 import { AiOutlineSave, AiOutlineEdit } from "react-icons/ai";
-import { BiFilterAlt } from "react-icons/bi";
+import { BiDetail, BiFilterAlt } from "react-icons/bi";
 
 import { FormHandles } from "@unform/core";
 import { Form } from "@unform/web";
@@ -39,7 +41,8 @@ const Button: Record<
     register: { label: "CADASTRAR", Icon: AiOutlineSave },
     edit: { label: "EDITAR", Icon: AiOutlineEdit },
     filters: { label: "FILTRAR", Icon: BiFilterAlt },
-    details: { label: "FILTRAR", Icon: BiFilterAlt },
+    details: { label: "DETALHAR", Icon: BiDetail },
+    fields: { label: "CAMPOS", Icon: BiDetail },
 };
 
 const standardFormatData = (data: Record<string, any>) => {
@@ -68,13 +71,13 @@ export const ActionsFormGbp: React.FC<ActionsFormProps> = ({
     const formRef = useRef<FormHandles>(null);
 
     const [searchParams, setSearchParams] = useSearchParams();
-
     const [loading, setLoading] = useState(false);
+
+    const isDetailsMode = type === SearchParamsScreenEnum.DETAILS;
 
     const handleSearchParams = useCallback(
         (key: SearchParamsEnum | SearchParamsScreenEnum, value: string) => {
             searchParams.set(key, value);
-
             setSearchParams(searchParams, { replace: true });
         },
         [searchParams, setSearchParams]
@@ -82,13 +85,12 @@ export const ActionsFormGbp: React.FC<ActionsFormProps> = ({
 
     const handleSubmit = useCallback(
         async (data: unknown) => {
-            if (!type) return;
+            if (!type || isDetailsMode) return;
 
             try {
                 setLoading(true);
                 if (validator) await validator(data);
 
-                // eslint-disable-next-line no-param-reassign
                 if (parser) data = parser(data);
 
                 if (type === SearchParamsScreenEnum.FILTERS) {
@@ -111,7 +113,6 @@ export const ActionsFormGbp: React.FC<ActionsFormProps> = ({
                     : formatData(data);
 
                 if (type === SearchParamsScreenEnum.EDIT && id) {
-                    // eslint-disable-next-line no-param-reassign
                     (data as Record<string, unknown>).id = id;
                     await StandardGbpApiService.update({
                         path: url,
@@ -143,7 +144,6 @@ export const ActionsFormGbp: React.FC<ActionsFormProps> = ({
                 ApiErrorHandler(err);
 
                 const validationErrors = yupValidation(err);
-
                 formRef.current?.setErrors(validationErrors);
             } finally {
                 setLoading(false);
@@ -157,6 +157,8 @@ export const ActionsFormGbp: React.FC<ActionsFormProps> = ({
             id,
             formatData,
             doAfterSubmit,
+            parser,
+            isDetailsMode,
         ]
     );
 
@@ -169,7 +171,7 @@ export const ActionsFormGbp: React.FC<ActionsFormProps> = ({
                     path: url,
                 });
 
-                setTimeout(() => formRef.current?.setData(data), 500);
+                setTimeout(() => formRef.current?.setData(data), 300);
             } catch (err) {
                 ApiErrorHandler(err);
             }
@@ -178,16 +180,59 @@ export const ActionsFormGbp: React.FC<ActionsFormProps> = ({
         fetchData();
     }, [id, url]);
 
+    // Clona os filhos para passar disabled e readOnly no modo detalhes
+    const childrenWithProps = React.Children.map(children, (child) => {
+        if (!React.isValidElement(child)) return child;
+
+        const typeOfChild = child.type as any;
+
+        const isHtmlInputLike =
+            typeof typeOfChild === "string" &&
+            ["input", "select", "textarea"].includes(typeOfChild);
+
+        const isCustomField =
+            typeof typeOfChild === "function" &&
+            "displayName" in typeOfChild &&
+            typeof typeOfChild.displayName === "string" &&
+            [
+                "Input",
+                "Select",
+                "DatePicker",
+                "InputMask",
+                "InputMultiLined",
+            ].includes(typeOfChild.displayName);
+
+        if (isDetailsMode && (isHtmlInputLike || isCustomField)) {
+            return React.cloneElement(child, {
+                disabled: true,
+                readOnly: true,
+            } as any); // <-- cast aqui
+        }
+
+        return child;
+    });
+
     return (
-        <Form onSubmit={handleSubmit} ref={formRef}>
-            {children}
-            <MainButton
-                type="submit"
-                loading={loading}
-                style={{ width: "24%", marginLeft: "auto", height: "40px" }}
-            >
-                {!!type && Button[type].Icon({})} {!!type && Button[type].label}
-            </MainButton>
+        <Form
+            onSubmit={handleSubmit}
+            ref={formRef}
+            className={isDetailsMode ? "opacity-90 pointer-events-none" : ""}
+        >
+            {childrenWithProps}
+            {!isDetailsMode && (
+                <MainButton
+                    type="submit"
+                    loading={loading}
+                    style={{
+                        width: "24%",
+                        marginLeft: "auto",
+                        height: "40px",
+                    }}
+                >
+                    {!!type && Button[type].Icon({})}{" "}
+                    {!!type && Button[type].label}
+                </MainButton>
+            )}
         </Form>
     );
 };

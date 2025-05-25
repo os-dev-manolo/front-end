@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { IconType } from "react-icons";
+import { IconBaseProps, IconType } from "react-icons";
 import { AiOutlineSave, AiOutlineEdit } from "react-icons/ai";
-import { BiFilterAlt } from "react-icons/bi";
+import { BiFastForward, BiFilterAlt } from "react-icons/bi";
 
 import { FormHandles } from "@unform/core";
 import { Form } from "@unform/web";
@@ -40,6 +40,7 @@ const Button: Record<
     edit: { label: "EDITAR", Icon: AiOutlineEdit },
     filters: { label: "FILTRAR", Icon: BiFilterAlt },
     details: { label: "FILTRAR", Icon: BiFilterAlt },
+    fields: { label: "CAMPOS", Icon: BiFastForward },
 };
 
 const standardFormatData = (data: Record<string, string>) => {

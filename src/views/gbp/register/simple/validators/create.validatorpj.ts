@@ -5,7 +5,7 @@ const schema = Yup.object().shape({
     cnpj: Yup.string().required("CNPJ é obrigatório"),
 });
 
-export const createPersonpj= async (payload: Partial<LegalPerson>) => {
+export const createPersonpj = async (payload: Partial<LegalPerson>) => {
     await schema.validate(payload, {
         abortEarly: false,
     });

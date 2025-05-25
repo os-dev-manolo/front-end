@@ -79,9 +79,15 @@ export const MenusConfigGbp = [
         module: GbpModulesPathEnum.REGISTER,
         submenus: [
             {
-                description: "Emendas",
-                icon: FiPaperclip,
+                description: "Emenda",
+                icon: FiPlusSquare,
                 navigate: `${GbpMenusPathEnum.GBP_REGISTER_AMENDMENT}/${GbpSubMenusPathEnum.NEW}`,
+                feature: FeaturesEnum.PERMISSIONS,
+            },
+            {
+                description: "Emenda API",
+                icon: FiPaperclip,
+                navigate: `${GbpMenusPathEnum.GBP_REGISTER_AMENDMENT_API}/${GbpSubMenusPathEnum.AMENDMENT_API}`,
                 feature: FeaturesEnum.PERMISSIONS,
             },
         ],

@@ -89,6 +89,10 @@ export const cpfOrCnpjMask = (value: string | number) => {
     return cnpjMask(stringValue);
 };
 
+export const formatToFourDigitsMask = (value: string | number) => {
+    return String(value).padStart(4, "0");
+};
+
 const Masks: Record<MaskTypes, (args: string | number) => string> = {
     time: (value: string | number) => dateMask(value, "time"),
     date: (value: string | number) => dateMask(value, "date"),
@@ -99,6 +103,8 @@ const Masks: Record<MaskTypes, (args: string | number) => string> = {
     measure: (value: string | number) => measureMask(value),
     percent: (value: string | number) => percentMask(value),
     phone: (value: string | number) => phoneMask(value),
+    formatToFourDigits: (value: string | number) =>
+        formatToFourDigitsMask(value),
 };
 
 export default Masks;

@@ -4,6 +4,7 @@ export enum SearchParamsEnum {
     SELECT = "select",
     LIMIT = "limit",
     OFFSET = "offset",
+    SELECT_DISTINCT = "select_distinct",
 }
 
 export enum SearchParamsScreenEnum {
@@ -12,4 +13,5 @@ export enum SearchParamsScreenEnum {
     EDIT = "edit",
     CLONE = "clone",
     DETAILS = "details",
+    FIELDS = "fields",
 }
