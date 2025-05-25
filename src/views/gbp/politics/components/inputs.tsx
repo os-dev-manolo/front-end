@@ -177,7 +177,7 @@ export const OfficialType = () => {
     useEffect(() => {
         (async () => {
             const jobs = await StandardGbpApiService.get<Official>({
-                path: "crud/cargo-politico",
+                path: "crud/cargos-politicos",
                 params: {},
             });
 
@@ -234,8 +234,18 @@ const PoliticalJobType = () => (
     />
 );
 
-export const FilterInputs = [Persons, OfficialType, Party];
+export const FilterInputs = [
+    Persons, // OfficialType
+    Party,
+];
 
-export const CreateInputs = [Persons, OfficialType, Party];
+export const CreateInputs = [
+    Persons, // OfficialType
+    Party,
+];
 
-export const UpdateInputs = [Persons, OfficialType, Party];
+export const UpdateInputs = [
+    Persons, // OfficialType
+
+    Party,
+];

@@ -13,7 +13,7 @@ export default () => {
     const { content, fetch, loading } = useStandardGbpFetch({
         subMenuPath: GbpSubMenusPathEnum.POLITICS,
         config: Config,
-        relations: ["pessoa", "partido", "partido.coligacao"],
+        relations: ["pessoa", "partido"],
     });
     return (
         <GbpStandardScreen

@@ -62,7 +62,7 @@ export const NewPoliticForm: React.FC = (): ReactElement => {
             )}
             {newOffical && (
                 <NewForm
-                    path="crud/cargo-politico"
+                    path="crud/cargos-politicos"
                     title="ADD NOVO CARGO POLITICO"
                     fields={OfficialsInputs.map((input) => input())}
                     doAfterSubmit={() => setNewOfficial(!newOffical)}

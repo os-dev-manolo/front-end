@@ -25,7 +25,7 @@ export enum GbpSubMenusPathEnum {
     POLITICAL_PARTIES = "partidos",
     POLITICAL_CHAINS = "correntes-politicas",
 
-    OFFICIALS = "cargo-politico",
+    OFFICIALS = "cargos-politico",
     LEGALPERSON = "pessoa-juridica",
     PERSON = "pessoa",
 }
