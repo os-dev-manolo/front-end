@@ -33,7 +33,7 @@ const EstimatedValue = () => (
     <Input name="valor_estimado" type="number" label="Valor Estimado" />
 );
 
-const CreatedAt = () => <SingleDatePicker name="criado_em" label="Criado em" />;
+// const CreatedAt = () => <SingleDatePicker name="criado_em" label="Criado em" />;
 
 const UpdatedAt = () => (
     <SingleDatePicker name="atualizado_em" label="Atualizado em" />
@@ -152,7 +152,7 @@ export const FilterInputs = [
     SituationSelect,
     OrgAction,
     TypeSelect,
-    CreatedAt,
+    // CreatedAt,
     UpdatedAt,
     YearAmendment,
     City,
@@ -174,7 +174,7 @@ export const CreateInputs = [
     City,
     MicroRegion,
     EstimatedValue,
-    CreatedAt,
+    // CreatedAt,
 ];
 
 export const UpdateInputs = [
