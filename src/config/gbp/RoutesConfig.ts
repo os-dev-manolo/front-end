@@ -22,6 +22,7 @@ import officials from "../../views/gbp/officials";
 import city from "../../views/gbp/city";
 import { CompleteRegisterPJ } from "../../views/gbp/register/complete/pj";
 import amendmentsApi from "../../views/gbp/amendments-api";
+import { RegisterNovo } from "../../views/gbp/register/complete/components";
 
 interface IRoutesConfig {
     public: IGbpRoutesConfig[];
@@ -133,6 +134,11 @@ export const RoutesConfigGbp: IRoutesConfig = {
                 key: "amendments-api",
                 path: `${GbpModulesPathEnum.REGISTER}/${GbpMenusPathEnum.GBP_REGISTER_AMENDMENT_API}/${GbpSubMenusPathEnum.AMENDMENT_API}`,
                 element: amendmentsApi,
+            },
+            {
+                key: "register-pf-complete-new",
+                path: `${GbpModulesPathEnum.REGISTER}/${GbpMenusPathEnum.GBP_REGISTER_PF}/${GbpSubMenusPathEnum.COMPLETE}/${GbpSubMenusPathEnum.NEW}`,
+                element: RegisterNovo,
             },
         ],
     },

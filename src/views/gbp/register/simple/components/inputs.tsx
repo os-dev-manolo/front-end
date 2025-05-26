@@ -297,6 +297,14 @@ const isPolitician = () => (
                 label: "Não informado",
                 value: "Não informado",
             },
+            {
+                label: "Opositor",
+                value: "Opositor",
+            },
+            {
+                label: "Neutro",
+                value: "Neutro",
+            },
         ]}
     />
 );

@@ -49,6 +49,12 @@ export const MenusConfigGbp = [
                 navigate: `${GbpMenusPathEnum.GBP_REGISTER_PF}/${GbpSubMenusPathEnum.COMPLETE}`,
                 feature: FeaturesEnum.USERS_MANAGER,
             },
+            {
+                description: "Novo",
+                icon: FiUser,
+                navigate: `${GbpMenusPathEnum.GBP_REGISTER_PF}/${GbpSubMenusPathEnum.COMPLETE}/${GbpSubMenusPathEnum.NEW}`,
+                feature: FeaturesEnum.PERMISSIONS,
+            },
         ],
     },
     {

@@ -1,11 +1,16 @@
-// imports padrão que você já usa
-import { useState, useEffect } from "react";
+/* eslint-disable react/jsx-no-bind */
+/* eslint-disable react/button-has-type */
+import { useRef, useState } from "react";
+import { Col, Nav, Row } from "react-bootstrap";
+import { FormHandles } from "@unform/core";
+import { Form } from "@unform/web";
 import { Checkbox } from "../../../../../components/global";
-import { Input, InputMultiLined } from "../../../../../components/global/input";
+import { Input } from "../../../../../components/global/input";
 import { Select } from "../../../../../components/global/select";
-import { SingleDatePicker } from "../../../../../components/global/event-date-picker";
+import { RegisterNovo } from ".";
 
 const Name = () => <Input name="nome" label="Nome completo" type="text" />;
+
 const BirthDate = () => (
     <Input name="nascimento" label="Nascimento" type="date" />
 );
@@ -41,7 +46,7 @@ const PhoneType = () => (
             {
                 label: "Fixo",
                 value: "Fixo",
-            }
+            },
         ]}
     />
 );
@@ -97,6 +102,79 @@ const SecondaryPhone = () => {
         />
     );
 };
+
+const TypeAdress = () => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    return (
+        <div className="max-w-md mx-auto p-4 border rounded shadow">
+            <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+                {isExpanded ? "Collapse" : "Expand"}
+            </button>
+
+            {isExpanded && (
+                <div className="mt-4 p-4 bg-gray-100 rounded transition-all duration-300">
+                    <Input
+                        name="residencial_endereco"
+                        label="Endereço residencial"
+                        type="text"
+                    />
+                    <Input
+                        name="residencial_cep"
+                        label="CEP residencial"
+                        type="text"
+                    />
+                    <Input
+                        name="residencial_estado"
+                        label="Estado"
+                        type="text"
+                    />
+                    <Input
+                        name="residencial_bairro"
+                        label="Bairro"
+                        type="text"
+                    />
+                </div>
+            )}
+        </div>
+    );
+};
+const BoostrapTest = () => {
+    return (
+        <>
+            <Row className="mb-3">
+                <Col md={12}>
+                    <Input name="nome" label="Nome completo" type="text" />
+                </Col>
+                <Col md={3}>
+                    <Input name="nascimento" label="Nascimento" type="date" />
+                </Col>
+                <Col md={3}>
+                    <Select
+                        name="sexo"
+                        label="Sexo"
+                        options={[
+                            { label: "Masculino", value: "Masculino" },
+                            { label: "Feminino", value: "Feminino" },
+                            { label: "Outro", value: "Outro" },
+                            {
+                                label: "Não informado",
+                                value: "Não informado",
+                            },
+                        ]}
+                    />
+                </Col>
+            </Row>
+            <RegisterNovo />
+        </>
+    );
+};
+
+export default BoostrapTest;
+
 const Ramal = () => <Input name="telefone_ramal" label="Ramal" type="text" />;
 const Operator = () => (
     <Input name="telefone_operadora" label="Operadora" type="text" />
@@ -201,7 +279,6 @@ const BooleanSelect = (name: string, label: string) => () =>
         />
     );
 
-
 const Cargo = BooleanSelect("cargo_publico", "Possui cargo público?");
 
 const Classificacao = () => (
@@ -295,71 +372,71 @@ const NomePai = () => <Input name="nome_pai" label="Nome do pai" type="text" />;
 // Filtros e arrays finais
 export const FilterInputs = [Name, CPF, BirthDate];
 
-export const CreateInputs = [
-    Name,
-    BirthDate,
-    Genre,
-    Correspondence,
-    Photo,
-    PhoneType,
-    Phone,
-    SecondaryPhone,
-    Ramal,
-    Operator,
-    Email,
-    EmailCommercial,
-    WebsiteType,
-    Website,
-    ResCep,
-    ResEstado,
-    ResCidade,
-    ResEndereco,
-    ResBairro,
-    ResNumero,
-    ResComplemento,
-    ResMicro,
-    ResRegiao,
-    ComCep,
-    ComEstado,
-    ComCidade,
-    ComEndereco,
-    ComBairro,
-    ComNumero,
-    ComComplemento,
-    ComMicro,
-    ComRegiao,
-    Apelido,
-    BasePolitica,
-    Candidato,
-    Cargo,
-    Classificacao,
-    Contato,
-    Coordenador,
-    Corrente,
-    EstadoCivil,
-    Formacao,
-    Igreja,
-    IndicadoPor,
-    Lideranca,
-    Multiplicador,
-    NumFilhos,
-    OrientSexual,
-    Partido,
-    Profissao,
-    Tratamento,
-    RacaCor,
-    Religiao,
-    CargoEtiqueta,
-    PresidentePartido,
-    Newsletter,
-    RG,
-    CPF,
-    Zona,
-    Secao,
-    Titulo,
-    CartaoSUS,
-    NomeMae,
-    NomePai,
-];
-
-export const UpdateInputs = [...CreateInputs];
+// export const CreateInputs = [
+//     Name,
+//     BirthDate,
+//     Genre,
+//     Correspondence,
+//     Photo,
+//     PhoneType,
+//     Phone,
+//     SecondaryPhone,
+//     Ramal,
+//     Operator,
+//     Email,
+//     EmailCommercial,
+//     WebsiteType,
+//     Website,
+//     ResCep,
+//     ResEstado,
+//     ResCidade,
+//     ResEndereco,
+//     ResBairro,
+//     ResNumero,
+//     ResComplemento,
+//     ResMicro,
+//     ResRegiao,
+//     ComCep,
+//     ComEstado,
+//     ComCidade,
+//     ComEndereco,
+//     ComBairro,
+//     ComNumero,
+//     ComComplemento,
+//     ComMicro,
+//     ComRegiao,
+//     Apelido,
+//     BasePolitica,
+//     Candidato,
+//     Cargo,
+//     Classificacao,
+//     Contato,
+//     Coordenador,
+//     Corrente,
+//     EstadoCivil,
+//     Formacao,
+//     Igreja,
+//     IndicadoPor,
+//     Lideranca,
+//     Multiplicador,
+//     NumFilhos,
+//     OrientSexual,
+//     Partido,
+//     Profissao,
+//     Tratamento,
+//     RacaCor,
+//     Religiao,
+//     CargoEtiqueta,
+//     PresidentePartido,
+//     Newsletter,
+//     RG,
+//     CPF,
+//     Zona,
+//     Secao,
+//     Titulo,
+//     CartaoSUS,
+//     NomeMae,
+//     NomePai,
+// ];
+export const CreateInputs = [BoostrapTest];
+export const UpdateInputs = [BoostrapTest];

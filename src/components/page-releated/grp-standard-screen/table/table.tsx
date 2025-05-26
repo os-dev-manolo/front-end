@@ -4,7 +4,6 @@ import { ITableColumns } from "../../../../shared/interfaces/ITable";
 import { THead } from "./thead_";
 import { TBody } from "./tbody_";
 
-
 interface TableProps<T = any> {
     columns: ITableColumns<T>[];
     dataSource: T[];

@@ -32,6 +32,7 @@ export const CompleteRegister: React.FC = () => {
             pagination={content?.paginate}
             loading={loading}
             reFetch={fetch}
+            className=" "
         />
     );
 };

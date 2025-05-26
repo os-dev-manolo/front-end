@@ -5,6 +5,7 @@ import {
 import {
     EditAction,
     DeleteAction,
+    DetailsAction,
 } from "../../../../../components/page-releated/grp-standard-screen/actions";
 import { StandardGbpColumns } from "../../../../../layout/gbp-standard-screen";
 import { ActionsButtonsEnum } from "../../../../../shared/enums/actions-buttons.enum";
@@ -29,6 +30,12 @@ const tableColumns: StandardGbpColumns<Person> = ({
         render(id) {
             return (
                 <div className="flex space-x-3.5">
+                    <DetailsAction
+                        doAfterClick={(id_) =>
+                            actionClick(ActionsButtonsEnum.DETAILS, Number(id_))
+                        }
+                        value={id as unknown as number}
+                    />
                     <EditAction
                         doAfterClick={(id_) =>
                             actionClick(ActionsButtonsEnum.EDIT, Number(id_))
@@ -49,6 +56,7 @@ const tableColumns: StandardGbpColumns<Person> = ({
         key: "id",
         name: "Código",
         dataKey: "id",
+        k: "id",
         headerClick: columnClick,
     },
     {
