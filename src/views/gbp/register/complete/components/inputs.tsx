@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable react/button-has-type */
 import { useRef, useState } from "react";

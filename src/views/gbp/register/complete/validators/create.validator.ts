@@ -32,14 +32,20 @@ const schema = Yup.object().shape({
     sexo: Yup.string().required("Sexo é obrigatório"),
     telefone_tipo: Yup.string().required("Tipo do telefone é obrigatório"),
     telefone_principal: Yup.string().required("Telefone é obrigatório"),
-    
-    
-    
-    email_pessoal: Yup.string().required("Email é obrigatório").email("E-mail inválido"),
+
+    email_pessoal: Yup.string()
+        .required("Email é obrigatório")
+        .email("E-mail inválido"),
     email_comercial: Yup.string().email("E-mail inválido"),
-    cpf: Yup.string().required("CPF é obrigatório").test("is-valid-cpf", "CPF inválido", (value) => value ? isValidCPF(value) : false),
-    
-    relacao_politica: Yup.string().required("Relação com a política obrigatório"),
+    cpf: Yup.string()
+        .required("CPF é obrigatório")
+        .test("is-valid-cpf", "CPF inválido", (value) =>
+            value ? isValidCPF(value) : false
+        ),
+
+    relacao_politica: Yup.string().required(
+        "Relação com a política obrigatório"
+    ),
     cargo_publico: Yup.string().required("Cargo público é obrigatório"),
 });
 

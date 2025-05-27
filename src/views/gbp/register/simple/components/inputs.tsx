@@ -1,14 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Checkbox } from "../../../../../components/global";
 import { Input, InputMultiLined } from "../../../../../components/global/input";
 import { Select } from "../../../../../components/global/select";
 import { SingleDatePicker } from "../../../../../components/global/event-date-picker";
-import {
-    PoliticalChain,
-    PoliticalParty,
-} from "../../../../../shared/interfaces/IPoliticalChains";
-import { SelectOptions } from "../../../../../shared/interfaces/ISelectOptions";
-import { StandardGbpApiService } from "../../../../../shared/services/api/standard-gbp-api.service";
 
 const Id = () => <Input name="id" type="number" label="Id" />;
 
@@ -296,10 +290,6 @@ const isPolitician = () => (
             {
                 label: "Não informado",
                 value: "Não informado",
-            },
-            {
-                label: "Opositor",
-                value: "Opositor",
             },
             {
                 label: "Neutro",

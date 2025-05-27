@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react";
 import { Input, Select } from "../../../../components/global";
 import { SingleDatePicker } from "../../../../components/global/event-date-picker";
