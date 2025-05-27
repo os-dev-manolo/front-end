@@ -9,7 +9,7 @@ export interface IAgendaEvent {
 export interface IAgendaEventResponse {
     id: number;
     title: string;
-    allDay: string;
+    allday: string;
     start: string;
     end: string;
 }

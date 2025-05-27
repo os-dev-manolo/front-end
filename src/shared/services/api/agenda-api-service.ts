@@ -28,4 +28,9 @@ export const AgendaApiService = {
 
         return data;
     },
+
+    async getBirthdays() {
+        const { data } = await semvApi.get(`/agenda/events/birthdays`);
+        return data;
+    },
 };

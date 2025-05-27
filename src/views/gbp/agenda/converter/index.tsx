@@ -1,5 +1,4 @@
 import moment from "moment";
-import { string } from "yup";
 import {
     IAgendaEventResponse,
     IAgendaTypedEvent,
@@ -9,16 +8,15 @@ export const convertEvents = async (events: IAgendaEventResponse[]) => {
     const newEvents: IAgendaTypedEvent[] = [];
 
     events.forEach((element: IAgendaEventResponse) => {
-        const allday = element.allDay;
         const event: IAgendaTypedEvent = {
             id: element.id,
             title: element.title,
-            allDay: true,
+            allDay: String(element.allday).toLowerCase() === "true",
             start: moment(element.start).toDate(),
-            end: moment(element.start).toDate(),
+            end: moment(element.end).toDate(),
         };
         newEvents.push(event);
     });
-    console.log(newEvents);
+
     return newEvents;
 };

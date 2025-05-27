@@ -1,16 +1,11 @@
 import React, { useCallback, useRef, useState } from "react";
 
-import { FiLock } from "react-icons/fi";
-
 import { Form as Unform } from "@unform/web";
 import { FormHandles } from "@unform/core";
 import { Button } from "react-bootstrap";
-import ReactDatePicker from "react-datepicker";
-import { MdTextSnippet, MdTitle } from "react-icons/md";
 import { showToast } from "../../../global/toast";
-import { Checkbox, DatePicker, Input, MainButton } from "../../../global";
+import { Checkbox, Input } from "../../../global";
 import { SingleDatePicker } from "../../../global/event-date-picker";
-import { UserService } from "../../../../shared/services/api/user-api.service";
 import { AgendaApiService } from "../../../../shared/services/api/agenda-api-service";
 import { IAgendaEvent } from "../../../../shared/interfaces/IEvent";
 import { InputMultiLined } from "../../../global/input";
@@ -21,20 +16,29 @@ interface FormProps {
 
 export const EventsForm: React.FC<FormProps> = ({ doAfterReset }) => {
     const formRef = useRef<FormHandles>(null);
-
-    const [loading, setLoading] = useState<boolean>(false);
+    const [, setLoading] = useState<boolean>(false);
 
     const onSubmit = useCallback(
         async (form: {
             title: string;
             allday: string;
             date: { startAt: Date };
+            endDate: { endAt: Date };
         }) => {
+            const startDate = form.date?.startAt;
+            let endDate = form.endDate?.endAt;
+
+            // Se não preencheu o fim, soma 1h
+            if (!endDate) {
+                endDate = new Date(startDate);
+                endDate.setHours(endDate.getHours() + 1);
+            }
+
             const event: IAgendaEvent = {
                 title: form.title,
                 allday: form.allday,
-                start: form.date.startAt,
-                end: form.date.startAt,
+                start: startDate,
+                end: endDate,
                 members: "",
             };
 
@@ -49,19 +53,17 @@ export const EventsForm: React.FC<FormProps> = ({ doAfterReset }) => {
                 });
 
                 doAfterReset();
-            } catch (err) {
-                // ApiErrorHandler(err);
-                // const validationError = yupValidation(err);
-                // formRef.current?.setErrors(validationError);
             } finally {
                 setLoading(false);
             }
         },
         [doAfterReset]
     );
+
     const handleCancel = () => {
         doAfterReset();
     };
+
     return (
         <Unform ref={formRef} onSubmit={onSubmit}>
             <span>NOVO EVENTO</span>
@@ -75,17 +77,16 @@ export const EventsForm: React.FC<FormProps> = ({ doAfterReset }) => {
             </div>
             <hr />
             <div>
-                <SingleDatePicker name="date" />
+                <SingleDatePicker name="date" label="Início" />
+                <SingleDatePicker name="endDate" label="Término" />
             </div>
             <hr />
             <div className="flex flex space-x-4">
                 <Button variant="primary" type="submit">
                     SALVAR
                 </Button>
-                <hr />
-                <br />
                 <Button
-                    className="btn-secondary flex items-center"
+                    className="btn-secondary"
                     type="button"
                     onClick={handleCancel}
                 >
