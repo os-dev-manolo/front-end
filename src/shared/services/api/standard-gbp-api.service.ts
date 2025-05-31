@@ -30,17 +30,12 @@ interface ICreateArgs {
 export const StandardGbpApiService = {
     async get<T>({ params, path, relations }: IGetArgs) {
         const searchParms = formatSearchParams(params);
-        console.log(
-            relations
-                ? `/${path}?${searchParms}relations=${relations.join(",")}`
-                : `/${path}?${searchParms}`
-        );
         const { data } = await semvApi.get<IPaginateApiResponse<T[]>>(
             relations
                 ? `/${path}?${searchParms}relations=${relations.join(",")}`
                 : `/${path}?${searchParms}`
         );
-        console.log(data);
+
         return data;
     },
     async readOne({
@@ -51,7 +46,6 @@ export const StandardGbpApiService = {
         return data;
     },
     async create({ path, payload }: ICreateArgs) {
-        console.log(`/${path}`, payload);
         const { data } = await semvApi.post(`/${path}`, payload);
 
         return data;

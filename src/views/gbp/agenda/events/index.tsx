@@ -1,34 +1,35 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 
-import React, { useState } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
+import { useState } from "react";
 import { EventsForm } from "../../../../components/page-releated/agenda/events";
 
 export const AgendaEvent = () => {
-    const [loading, setLoading] = useState(false);
+    const [show, setShow] = useState(false);
 
-    const handleOnClick = () => {
-        setLoading(!loading);
-    };
+    const handleOpen = () => setShow(true);
+    const handleClose = () => setShow(false);
+
     const doAfterReset = () => {
-        setLoading(!loading);
+        handleClose();
     };
+
     return (
         <>
-            <div dir="rtl">
-                <div className="relative h-20 w-20">
-                    <Button className="btn-prmary" onClick={handleOnClick}>
-                        NOVO
-                    </Button>
-                </div>
+            <div className="d-flex justify-content-end mb-3">
+                <Button variant="primary" onClick={handleOpen}>
+                    Novo Evento
+                </Button>
             </div>
-            {loading && (
-                <div className="relative h-1/2 w-1/3">
-                    <EventsForm doAfterReset={doAfterReset} />
-                </div>
-            )}
 
-            <div> </div>
+            <Modal show={show} onHide={handleClose} size="lg" centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Criar Novo Evento</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <EventsForm doAfterReset={doAfterReset} />
+                </Modal.Body>
+            </Modal>
         </>
     );
 };
