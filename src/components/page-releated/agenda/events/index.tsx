@@ -62,7 +62,7 @@ export const EventsForm: React.FC<FormProps> = ({ doAfterReset, event }) => {
     const onSubmit = useCallback(
         async (form: {
             color: string | undefined;
-            notifyOnDate: boolean;
+            notifyOnDate: string;
             title: string;
             description: string;
             allday: string;
@@ -86,11 +86,11 @@ export const EventsForm: React.FC<FormProps> = ({ doAfterReset, event }) => {
                 endDate.setHours(endDate.getHours() + 1);
             }
 
-            const colorLetter = colorLetterMap[form.color || ""] || "";
-            const iconPart = form.icon || "";
-            const notifyIcon = form.notifyOnDate ? "#" : "";
+            const colorLetter = colorLetterMap[form.color || ""] || "0";
+            const notifyIcon = form.notifyOnDate === "true" ? "#" : "0";
+            const iconPart = form.icon || "0";
 
-            const composedTitle = `${colorLetter}${notifyIcon}${iconPart} ${form.title}`;
+            const composedTitle = `${colorLetter}${notifyIcon}${iconPart} ${form.title.trim()}`;
 
             const payload: IAgendaEvent = {
                 title: composedTitle,
@@ -171,7 +171,7 @@ export const EventsForm: React.FC<FormProps> = ({ doAfterReset, event }) => {
                     name="icon"
                     label="Ícone do Evento (Opcional)"
                     options={[
-                        { value: "", label: "Nenhum" },
+                        { value: "0", label: "Nenhum" },
                         { value: "@", label: "💼 Reunião" },
                         { value: "*", label: "🎂 Aniversário" },
                         { value: "%", label: "🎯 Meta" },

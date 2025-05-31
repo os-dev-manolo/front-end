@@ -24,6 +24,7 @@ const colorMap: Record<string, string> = {
     g: "#179a75", // verde musgo moderno
     o: "#b77407", // laranja mostarda
     p: "#4a2ea3", // roxo berinjela elegante
+    0: "#4d4d4d",
 };
 
 // 🔥 Ícones e tags
@@ -33,6 +34,7 @@ const iconMap: Record<string, string> = {
     "!": "⚠️",
     "%": "🎯",
     "*": "🎂",
+    "0": "",
 };
 
 const iconDescriptions: Record<string, string> = {
@@ -41,16 +43,23 @@ const iconDescriptions: Record<string, string> = {
     "⚠️": "Importante",
     "🎯": "Meta",
     "🎂": "Aniversário",
+    "": "Evento Comum",
 };
 
 // 🎯 Parse do título do evento
 function parseEventTitle(title: string) {
     const chars = Array.from(title);
-    const colorLetter = chars[0] || "";
+    const colorLetter = chars[0] || "0";
 
-    const tags = chars.slice(1).filter((c) => Object.keys(iconMap).includes(c));
-    const textStartIndex = 2 + tags.length;
-    const text = chars.slice(textStartIndex).join("").trim();
+    // Tags são os caracteres que aparecem depois da cor, até encontrar o primeiro espaço
+    const tags: string[] = [];
+    let i = 1;
+    while (i < chars.length && Object.keys(iconMap).includes(chars[i])) {
+        tags.push(chars[i]);
+        i += 1;
+    }
+
+    const text = chars.slice(i).join("").trim();
     const icons = tags.map((tag) => iconMap[tag]).filter(Boolean);
 
     return { colorLetter, tags, icons, text };
@@ -80,7 +89,7 @@ export const Agenda: React.FC = () => {
             const aniversarios = birthdaysResponse.data.map(
                 (evento: IAgendaTypedEvent) => ({
                     id: evento.id,
-                    title: `p * ${evento.title}`, // Aniversário agora com *
+                    title: `p* ${evento.title}`, // Aniversário agora com *
                     start: new Date(evento.start),
                     end: new Date(evento.end),
                     allDay: evento.allDay,
@@ -169,6 +178,7 @@ export const Agenda: React.FC = () => {
         "⚠️": true, // Importante
         "📞": true, // Notificação
         "💼": true, // Reunião
+        "": true,
     });
 
     const toggleFilter = (icon: string) => {
@@ -180,7 +190,9 @@ export const Agenda: React.FC = () => {
 
     const filteredEvents = typedEvents.filter((event) => {
         const { icons } = parseEventTitle(event.title);
-        // Se o evento tiver pelo menos um ícone habilitado, ele aparece
+        if (icons.length === 0) {
+            return filters[""];
+        }
         return icons.some((icon) => filters[icon]);
     });
 

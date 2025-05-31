@@ -11,7 +11,7 @@ export interface IAgendaEvent {
 }
 
 export interface IAgendaEventResponse {
-    notifyOnDate: unknown;
+    notifyOnDate: boolean;
     color: unknown;
     icon: unknown;
     type: string;
@@ -32,5 +32,5 @@ export interface IAgendaTypedEvent {
     allDay: boolean;
     start: Date;
     end: Date;
-    reminder?: unknown;
+    reminder?: boolean;
 }
