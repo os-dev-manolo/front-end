@@ -37,13 +37,13 @@ export const EventsForm: React.FC<FormProps> = ({ doAfterReset, event }) => {
                 ([, letter]) => letter === colorLetter
             )?.[0];
 
-            const notifyOnDate = event.title.includes("📞");
+            const notifyOnDate = event.title.includes("#");
 
             const iconMatch = event.title.match(/[@!%*]/);
             const icon = iconMatch ? iconMatch[0] : "";
 
             const title = event.title
-                .replace(/^[a-z]?📞?[@!%*]?\s*/, "")
+                .replace(/^[a-z]?[#]?[@!%*]?\s*/, "")
                 .trim();
 
             formRef.current?.setData({
@@ -88,7 +88,7 @@ export const EventsForm: React.FC<FormProps> = ({ doAfterReset, event }) => {
 
             const colorLetter = colorLetterMap[form.color || ""] || "";
             const iconPart = form.icon || "";
-            const notifyIcon = form.notifyOnDate ? "📞" : "";
+            const notifyIcon = form.notifyOnDate ? "#" : "";
 
             const composedTitle = `${colorLetter}${notifyIcon}${iconPart} ${form.title}`;
 

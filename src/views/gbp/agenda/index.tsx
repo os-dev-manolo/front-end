@@ -11,6 +11,7 @@ import { showToast } from "../../../components/global/toast";
 import { AgendaApiService } from "../../../shared/services/api/agenda-api-service";
 import { IAgendaTypedEvent } from "../../../shared/interfaces/IEvent";
 import { convertEvents } from "./converter";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { EventsForm } from "../../../components/page-releated/agenda/events";
 import { AgendaEvent } from "./events";
 
@@ -59,6 +60,7 @@ export const Agenda: React.FC = () => {
     const [, setLoading] = useState(false);
     const [typedEvents, setEvents] = useState<IAgendaTypedEvent[]>([]);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [showEventModal, setShowEventModal] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [selectedEvent, setSelectedEvent] =
@@ -155,6 +157,7 @@ export const Agenda: React.FC = () => {
         return `${icons.join(" ")} ${text}`.trim();
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const doAfterReset = () => {
         handleCloseEventModal();
         fetchData(); // Atualiza os eventos após criar
