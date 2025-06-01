@@ -4,7 +4,7 @@ import moment from "moment";
 import "moment/locale/pt-br";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Dropdown } from "react-bootstrap";
 
 import { Header } from "../../../components/page-releated/gbp-crud-screen/header";
 import { showToast } from "../../../components/global/toast";
@@ -124,9 +124,9 @@ export const Agenda: React.FC = () => {
                 opacity: 1,
                 color: "white",
                 border: "2px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                display: "flex", // 🔥 Isso alinha internamente
+                alignItems: "center", // 🔥 Alinha verticalmente
+                justifyContent: "center", // 🔥 Alinha horizontalmente
                 boxShadow: "0px 1px 4px rgba(0,0,0,0.5)", // sombra leve
             },
         };
@@ -143,9 +143,30 @@ export const Agenda: React.FC = () => {
             .join(" — ");
 
         return (
-            <span title={tooltipText}>
-                {icons.join(" ")} {text}
-            </span>
+            <div
+                title={tooltipText}
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "3px",
+                    width: "100%",
+                    height: "100%",
+                    fontSize: "0.85rem",
+                    fontWeight: 500,
+                    color: "white",
+                    textAlign: "center",
+                    padding: "1px 2px", // 🔲 Padding interno
+                    whiteSpace: "nowrap", // 🚫 Quebra de linha
+                    overflow: "hidden",
+                    textOverflow: "ellipsis", // ...
+                }}
+            >
+                {icons.length > 0 && (
+                    <span style={{ fontSize: "1rem" }}>{icons.join(" ")}</span>
+                )}
+                <span>{text}</span>
+            </div>
         );
     };
 
@@ -201,40 +222,39 @@ export const Agenda: React.FC = () => {
             <Header title="Agenda" />
             <AgendaEvent />
 
-            {/* 🔍 Filtros */}
-            <div className="text-center mb-3">
-                <h4>Filtros</h4>
-            </div>
-
-            {/* Container dos checkboxes dos filtros */}
-            <div className="d-flex flex-wrap justify-content-center align-items-center gap-4 bg-dark text-white p-1 rounded w-50 mx-auto">
-                {Object.entries(iconDescriptions).map(([icon, label]) => (
-                    <div
-                        key={icon}
-                        className="form-check d-flex align-items-center"
-                    >
-                        <input
-                            className="form-check-input"
-                            type="checkbox"
-                            checked={filters[icon]}
-                            id={`filter-${icon}`}
-                            onChange={() => toggleFilter(icon)}
-                        />
-                        <label
-                            className="form-check-label"
-                            htmlFor={`filter-${icon}`}
-                            style={{ cursor: "pointer", userSelect: "none" }}
-                        >
-                            <span
-                                style={{ fontSize: "1.2rem", marginRight: 4 }}
-                            >
-                                {icon}
-                            </span>
-                            {label}
-                        </label>
-                    </div>
-                ))}
-            </div>
+            <Dropdown className="mb-3">
+                <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+                    Filtros
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                    {Object.entries(iconDescriptions).map(([icon, label]) => (
+                        <Dropdown.Item key={icon} as="div">
+                            <div className="form-check">
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    checked={filters[icon]}
+                                    id={`filter-${icon}`}
+                                    onChange={() => toggleFilter(icon)}
+                                />
+                                <label
+                                    className="form-check-label ms-1"
+                                    htmlFor={`filter-${icon}`}
+                                    style={{
+                                        cursor: "pointer",
+                                        userSelect: "none",
+                                    }}
+                                >
+                                    <span style={{ marginRight: 4 }}>
+                                        {icon}
+                                    </span>
+                                    {label}
+                                </label>
+                            </div>
+                        </Dropdown.Item>
+                    ))}
+                </Dropdown.Menu>
+            </Dropdown>
 
             <Calendar
                 localizer={localizer}
