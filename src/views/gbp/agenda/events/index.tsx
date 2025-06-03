@@ -16,15 +16,20 @@ export const AgendaEvent = () => {
 
     return (
         <>
-            <div className="d-flex justify-content-end mb-3">
-                <Button variant="primary" onClick={handleOpen}>
-                    Novo Evento
+            <div className="d-flex justify-content-end gap-5">
+                <Button variant="string" color="black" onClick={handleOpen}>
+                    ➕ Novo Evento
                 </Button>
             </div>
 
-            <Modal show={show} onHide={handleClose} size="lg" centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Criar Novo Evento</Modal.Title>
+            <Modal show={show} onHide={handleClose} centered>
+                <Modal.Header closeButton className="position-relative">
+                    <Modal.Title
+                        className="position-absolute top-50 start-50 translate-middle"
+                        style={{ margin: 0 }}
+                    >
+                        Criar Novo Evento
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <EventsForm doAfterReset={doAfterReset} />

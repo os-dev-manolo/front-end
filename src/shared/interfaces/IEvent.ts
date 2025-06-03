@@ -11,6 +11,7 @@ export interface IAgendaEvent {
 }
 
 export interface IAgendaEventResponse {
+    description: string;
     notifyOnDate: boolean;
     color: unknown;
     icon: unknown;

@@ -14,6 +14,7 @@ import { convertEvents } from "./converter";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { EventsForm } from "../../../components/page-releated/agenda/events";
 import { AgendaEvent } from "./events";
+import "../../../components/page-releated/agenda/events/calendar-overrides.css";
 
 const localizer = momentLocalizer(moment);
 
@@ -68,7 +69,9 @@ function parseEventTitle(title: string) {
 export const Agenda: React.FC = () => {
     const [, setLoading] = useState(false);
     const [typedEvents, setEvents] = useState<IAgendaTypedEvent[]>([]);
-
+    const [hoveredEvent, setHoveredEvent] = useState<IAgendaTypedEvent | null>(
+        null
+    );
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [showEventModal, setShowEventModal] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
@@ -84,19 +87,24 @@ export const Agenda: React.FC = () => {
             setLoading(true);
             const eventsResponse = await AgendaApiService.getEvents();
             const convertedEvents = await convertEvents(eventsResponse.data);
-
             const birthdaysResponse = await AgendaApiService.getBirthdays();
-            const aniversarios = birthdaysResponse.data.map(
-                (evento: IAgendaTypedEvent) => ({
-                    id: evento.id,
-                    title: `p* ${evento.title}`, // Aniversário agora com *
-                    start: new Date(evento.start),
-                    end: new Date(evento.end),
-                    allDay: evento.allDay,
+            const aniversarios = birthdaysResponse.data.map((pessoa: any) => {
+                const nascimento = moment(pessoa.nascimento);
+                const currentYear = moment().year();
+                const aniversario = moment({
+                    year: currentYear,
+                    month: nascimento.month(),
+                    date: nascimento.date(),
+                });
+                return {
+                    id: pessoa.id,
+                    title: ` * ${pessoa.nome}`,
+                    start: aniversario.toDate(),
+                    end: aniversario.toDate(),
+                    allDay: true,
                     type: "Aniversário",
-                })
-            );
-
+                };
+            });
             const allEvents = [...convertedEvents, ...aniversarios];
             setEvents(allEvents);
 
@@ -115,7 +123,8 @@ export const Agenda: React.FC = () => {
 
     const eventPropGetter = (event: IAgendaTypedEvent) => {
         const { colorLetter } = parseEventTitle(event.title);
-        const backgroundColor = colorMap[colorLetter.toLowerCase()] || "black";
+        const backgroundColor =
+            colorMap[colorLetter.toLowerCase()] || "#4a2ea3";
 
         return {
             style: {
@@ -145,6 +154,8 @@ export const Agenda: React.FC = () => {
         return (
             <div
                 title={tooltipText}
+                onMouseEnter={() => setHoveredEvent(event)}
+                onMouseLeave={() => setHoveredEvent(null)}
                 style={{
                     display: "flex",
                     alignItems: "center",
@@ -152,18 +163,21 @@ export const Agenda: React.FC = () => {
                     gap: "3px",
                     width: "100%",
                     height: "100%",
-                    fontSize: "0.85rem",
-                    fontWeight: 500,
+                    fontSize: "0.90",
+                    fontWeight: 700,
                     color: "white",
                     textAlign: "center",
-                    padding: "1px 2px", // 🔲 Padding interno
-                    whiteSpace: "nowrap", // 🚫 Quebra de linha
+                    padding: "1px 2px",
+                    whiteSpace: "nowrap",
                     overflow: "hidden",
-                    textOverflow: "ellipsis", // ...
+                    textOverflow: "ellipsis",
+                    cursor: "pointer",
                 }}
             >
                 {icons.length > 0 && (
-                    <span style={{ fontSize: "1rem" }}>{icons.join(" ")}</span>
+                    <span style={{ fontSize: "0.8rem" }}>
+                        {icons.join(" ")}
+                    </span>
                 )}
                 <span>{text}</span>
             </div>
@@ -219,74 +233,80 @@ export const Agenda: React.FC = () => {
 
     return (
         <div>
-            <Header title="Agenda" />
-            <AgendaEvent />
-
-            <Dropdown className="mb-3">
-                <Dropdown.Toggle variant="secondary" id="dropdown-basic">
-                    Filtros
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                    {Object.entries(iconDescriptions).map(([icon, label]) => (
-                        <Dropdown.Item key={icon} as="div">
-                            <div className="form-check">
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    checked={filters[icon]}
-                                    id={`filter-${icon}`}
-                                    onChange={() => toggleFilter(icon)}
-                                />
-                                <label
-                                    className="form-check-label ms-1"
-                                    htmlFor={`filter-${icon}`}
-                                    style={{
-                                        cursor: "pointer",
-                                        userSelect: "none",
-                                    }}
-                                >
-                                    <span style={{ marginRight: 4 }}>
-                                        {icon}
-                                    </span>
-                                    {label}
-                                </label>
-                            </div>
-                        </Dropdown.Item>
-                    ))}
-                </Dropdown.Menu>
-            </Dropdown>
-
-            <Calendar
-                localizer={localizer}
-                events={filteredEvents}
-                startAccessor="start"
-                endAccessor="end"
-                style={{ height: 800 }}
-                onSelectEvent={handleSelectEvent}
-                eventPropGetter={eventPropGetter}
-                components={{ event: eventRenderer }}
-                messages={{
-                    next: "Próximo",
-                    previous: "Anterior",
-                    today: "Hoje",
-                    month: "Mês",
-                    week: "Semana",
-                    day: "Dia",
-                    agenda: "Agenda",
-                }}
-                titleAccessor={(event) => {
-                    const { icons, text } = parseEventTitle(event.title);
-                    return [
-                        text,
-                        ...icons.map((i) => iconDescriptions[i] || ""),
-                    ]
-                        .filter(Boolean)
-                        .join(" — ");
-                }}
-            />
-
+            <div>
+                <Dropdown>
+                    <Dropdown.Toggle variant="string" id="dropdown-basic">
+                        Filtros
+                    </Dropdown.Toggle>
+                    <AgendaEvent />
+                    <Dropdown.Menu>
+                        {Object.entries(iconDescriptions).map(
+                            ([icon, label]) => (
+                                <Dropdown.Item key={icon} as="div">
+                                    <div className="form-check">
+                                        <input
+                                            className="form-check-input"
+                                            type="checkbox"
+                                            checked={filters[icon]}
+                                            id={`filter-${icon}`}
+                                            onChange={() => toggleFilter(icon)}
+                                        />
+                                        <label
+                                            className="form-check-label ms-1"
+                                            htmlFor={`filter-${icon}`}
+                                            style={{
+                                                cursor: "pointer",
+                                                userSelect: "none",
+                                            }}
+                                        >
+                                            <span style={{ marginRight: 4 }}>
+                                                {icon}
+                                            </span>
+                                            {label}
+                                        </label>
+                                    </div>
+                                </Dropdown.Item>
+                            )
+                        )}
+                    </Dropdown.Menu>
+                </Dropdown>
+            </div>
+            <div className="agenda-container">
+                <Calendar
+                    localizer={localizer}
+                    events={filteredEvents}
+                    startAccessor="start"
+                    endAccessor="end"
+                    style={{ height: 800 }}
+                    onSelectEvent={handleSelectEvent}
+                    eventPropGetter={eventPropGetter}
+                    components={{ event: eventRenderer }}
+                    popup
+                    dayLayoutAlgorithm="no-overlap"
+                    messages={{
+                        next: "Próximo",
+                        previous: "Anterior",
+                        today: "Hoje",
+                        month: "Mês",
+                        week: "Semana",
+                        day: "Dia",
+                        agenda: "Agenda",
+                        showMore: (total) => `+${total} mais`,
+                    }}
+                    titleAccessor={(event) => {
+                        const { icons, text } = parseEventTitle(event.title);
+                        return [
+                            text,
+                            ...icons.map((i) => iconDescriptions[i] || ""),
+                        ]
+                            .filter(Boolean)
+                            .join(" — ");
+                    }}
+                />
+            </div>
             {/* Modal Detalhes */}
             <Modal
+                className="d-flex justify-content-center "
                 show={showDetailModal}
                 onHide={handleCloseDetailModal}
                 centered
@@ -329,7 +349,7 @@ export const Agenda: React.FC = () => {
                         variant="secondary"
                         onClick={handleCloseDetailModal}
                     >
-                        Fechar
+                        Cancelar
                     </Button>
                 </Modal.Footer>
             </Modal>

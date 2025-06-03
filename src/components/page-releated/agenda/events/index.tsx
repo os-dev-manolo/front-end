@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Form as Unform } from "@unform/web";
 import { FormHandles } from "@unform/core";
 import { Button } from "react-bootstrap";
 
 import { showToast } from "../../../global/toast";
 import { Checkbox, Input } from "../../../global";
-import { SingleDatePicker } from "../../../global/event-date-picker";
 import { Select } from "../../../global/select";
 import { AgendaApiService } from "../../../../shared/services/api/agenda-api-service";
 import { IAgendaEvent } from "../../../../shared/interfaces/IEvent";
@@ -13,7 +12,6 @@ import { InputMultiLined } from "../../../global/input";
 
 interface FormProps {
     doAfterReset(): void;
-    event?: IAgendaEvent | null; // Evento opcional para edição
 }
 
 const colorLetterMap: Record<string, string> = {
@@ -24,54 +22,23 @@ const colorLetterMap: Record<string, string> = {
     purple: "p",
 };
 
-export const EventsForm: React.FC<FormProps> = ({ doAfterReset, event }) => {
+export const EventsForm: React.FC<FormProps> = ({ doAfterReset }) => {
     const formRef = useRef<FormHandles>(null);
     const [, setLoading] = useState<boolean>(false);
 
-    const isEditing = Boolean(event?.id);
-
-    useEffect(() => {
-        if (event) {
-            const colorLetter = event.title.charAt(0);
-            const color = Object.entries(colorLetterMap).find(
-                ([, letter]) => letter === colorLetter
-            )?.[0];
-
-            const notifyOnDate = event.title.includes("#");
-
-            const iconMatch = event.title.match(/[@!%*]/);
-            const icon = iconMatch ? iconMatch[0] : "";
-
-            const title = event.title
-                .replace(/^[a-z]?[#]?[@!%*]?\s*/, "")
-                .trim();
-
-            formRef.current?.setData({
-                title,
-                description: event.description || "",
-                color,
-                notifyOnDate,
-                icon,
-                allday: event.allday,
-                date: { startAt: new Date(event.start) },
-                endDate: { endAt: new Date(event.end) },
-            });
-        }
-    }, [event]);
-
     const onSubmit = useCallback(
         async (form: {
-            color: string | undefined;
-            notifyOnDate: string;
+            color?: string;
+            notifyOnDate?: string;
             title: string;
             description: string;
-            allday: string;
+            allday?: string;
             icon: string;
-            date: { startAt: Date };
-            endDate: { endAt: Date };
+            date: string;
+            endDate: string;
         }) => {
-            const startDate = form.date?.startAt;
-            let endDate = form.endDate?.endAt;
+            const startDate = form.date ? new Date(form.date) : undefined;
+            let endDate = form.endDate ? new Date(form.endDate) : undefined;
 
             if (!startDate) {
                 showToast({
@@ -94,7 +61,7 @@ export const EventsForm: React.FC<FormProps> = ({ doAfterReset, event }) => {
 
             const payload: IAgendaEvent = {
                 title: composedTitle,
-                allday: form.allday,
+                allday: String(form.allday),
                 start: startDate,
                 end: endDate,
                 members: "",
@@ -104,124 +71,76 @@ export const EventsForm: React.FC<FormProps> = ({ doAfterReset, event }) => {
 
             try {
                 setLoading(true);
-
-                if (isEditing && event?.id) {
-                    await AgendaApiService.updateEvent(event.id, payload);
-                    showToast({
-                        type: "success",
-                        message: "Evento atualizado com sucesso",
-                    });
-                } else {
-                    await AgendaApiService.createEvent(payload);
-                    showToast({
-                        type: "success",
-                        message: "Evento criado com sucesso",
-                    });
-                }
-
-                doAfterReset();
-            } finally {
-                setLoading(false);
-            }
-        },
-        [doAfterReset, event, isEditing]
-    );
-
-    const handleCancel = () => {
-        doAfterReset();
-    };
-
-    const handleDelete = async () => {
-        if (event?.id) {
-            try {
-                setLoading(true);
-                await AgendaApiService.deleteEvent(event.id);
+                await AgendaApiService.createEvent(payload);
                 showToast({
                     type: "success",
-                    message: "Evento excluído com sucesso",
+                    message: "Evento criado com sucesso",
                 });
                 doAfterReset();
             } finally {
                 setLoading(false);
             }
-        }
-    };
+        },
+        [doAfterReset]
+    );
 
     return (
-        <Unform ref={formRef} onSubmit={onSubmit}>
-            <span className="font-bold">
-                {isEditing ? "EDITAR EVENTO" : "NOVO EVENTO"}
-            </span>
-            <hr />
+        <div className="max-w-md mx-auto">
+            <Unform ref={formRef} onSubmit={onSubmit}>
+                <div className="grid grid-cols-2 gap-2">
+                    <Input name="title" type="text" label="Título" />
+                    <div className="items-center pl-2 pr-2">
+                        <Checkbox name="allday" label=" Dia Todo" />
+                        <Checkbox
+                            name="notifyOnDate"
+                            label="Notificar via WhatsApp"
+                        />
+                    </div>
+                    <Select
+                        name="icon"
+                        label="Ícone"
+                        options={[
+                            { value: "0", label: "Nenhum" },
+                            { value: "@", label: "💼 Reunião" },
+                            { value: "*", label: "🎂 Aniversário" },
+                            { value: "%", label: "🎯 Meta" },
+                            { value: "!", label: "⚠️ Importante" },
+                        ]}
+                    />
+                    <Select
+                        name="color"
+                        label="Cor"
+                        options={[
+                            { value: "blue", label: "🔵 Azul" },
+                            { value: "red", label: "🔴 Vermelho" },
+                            { value: "green", label: "🟢 Verde" },
+                            { value: "orange", label: "🟠 Laranja" },
+                            { value: "purple", label: "🟣 Roxo" },
+                        ]}
+                    />
 
-            <Input name="title" type="text" label="Título" />
-            <InputMultiLined name="description" type="text" label="Descrição" />
+                    <Input name="date" label="Início" type="datetime-local" />
+                    <Input
+                        name="endDate"
+                        label="Término"
+                        type="datetime-local"
+                    />
+                </div>
 
-            <div className="w-1/3 h-1/3 mt-3">
-                <Checkbox name="allday" label="O DIA TODO" />
-            </div>
+                <div className="mt-3">
+                    <InputMultiLined
+                        name="description"
+                        type="text"
+                        label="Descrição"
+                    />
+                </div>
 
-            <div className="mt-3">
-                <SingleDatePicker name="date" label="Início" />
-                <SingleDatePicker name="endDate" label="Término" />
-            </div>
-
-            <div className="mt-3">
-                <Select
-                    name="icon"
-                    label="Ícone do Evento (Opcional)"
-                    options={[
-                        { value: "0", label: "Nenhum" },
-                        { value: "@", label: "💼 Reunião" },
-                        { value: "*", label: "🎂 Aniversário" },
-                        { value: "%", label: "🎯 Meta" },
-                        { value: "!", label: "⚠️ Importante" },
-                    ]}
-                />
-            </div>
-
-            <Select
-                name="color"
-                label="Cor do Evento"
-                options={[
-                    { value: "blue", label: "Azul" },
-                    { value: "red", label: "Vermelho" },
-                    { value: "green", label: "Verde" },
-                    { value: "orange", label: "Laranja" },
-                    { value: "purple", label: "Roxo" },
-                ]}
-            />
-
-            <Checkbox
-                name="notifyOnDate"
-                label="Notificar no dia do evento (WhatsApp)"
-            />
-
-            <div className="flex mt-4 space-x-4">
-                <Button variant="primary" type="submit">
-                    SALVAR
-                </Button>
-                <Button
-                    variant="secondary"
-                    type="button"
-                    onClick={handleCancel}
-                >
-                    CANCELAR
-                </Button>
-
-                {isEditing && (
-                    <Button
-                        variant="danger"
-                        type="button"
-                        onClick={handleDelete}
-                    >
-                        EXCLUIR
+                <div className="flex justify-center gap-2 mt-4">
+                    <Button variant="primary" type="submit">
+                        Salvar
                     </Button>
-                )}
-            </div>
-
-            <div className="mt-3 h-10" />
-            <hr />
-        </Unform>
+                </div>
+            </Unform>
+        </div>
     );
 };

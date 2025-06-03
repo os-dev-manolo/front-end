@@ -8,19 +8,6 @@ export const convertEvents = async (events: IAgendaEventResponse[]) => {
     const newEvents: IAgendaTypedEvent[] = [];
 
     events.forEach((element: IAgendaEventResponse) => {
-        // // 🔸 Definindo o prefixo baseado no tipo do evento, se desejar
-        // let iconPrefix = "";
-
-        // if (element.type === "reuniao") {
-        //     iconPrefix = "📅 "; // exemplo
-        // } else if (element.type === "aniversario") {
-        //     iconPrefix = "🎂 "; // exemplo
-        // } else if (element.type === "feriado") {
-        //     iconPrefix = "🏖️ "; // exemplo
-        // } else {
-        //     iconPrefix = "📌 "; // padrão
-        // }
-
         const event: IAgendaTypedEvent = {
             id: element.id,
             title: element.title, // 🔥 remove letra da cor + ícone
@@ -33,7 +20,7 @@ export const convertEvents = async (events: IAgendaEventResponse[]) => {
                 notifyOnDate: element.notifyOnDate,
             },
             type: undefined,
-            description: "",
+            description: element.description,
         };
         newEvents.push(event);
     });
