@@ -2,17 +2,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useState } from "react";
 import moment from "moment";
 import "moment/locale/pt-br";
-import { Calendar, momentLocalizer } from "react-big-calendar";
+import { Calendar, momentLocalizer, View } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { Modal, Button, Dropdown } from "react-bootstrap";
-
-import { Header } from "../../../components/page-releated/gbp-crud-screen/header";
 import { showToast } from "../../../components/global/toast";
 import { AgendaApiService } from "../../../shared/services/api/agenda-api-service";
 import { IAgendaTypedEvent } from "../../../shared/interfaces/IEvent";
 import { convertEvents } from "./converter";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { EventsForm } from "../../../components/page-releated/agenda/events";
 import { AgendaEvent } from "./events";
 import "../../../components/page-releated/agenda/events/calendar-overrides.css";
 
@@ -129,18 +125,10 @@ export const Agenda: React.FC = () => {
         return {
             style: {
                 backgroundColor,
-                borderRadius: "8px",
-                opacity: 1,
-                color: "white",
-                border: "2px",
-                display: "flex", // 🔥 Isso alinha internamente
-                alignItems: "center", // 🔥 Alinha verticalmente
-                justifyContent: "center", // 🔥 Alinha horizontalmente
-                boxShadow: "0px 1px 4px rgba(0,0,0,0.5)", // sombra leve
+                boxShadow: "0px 1px 4px rgba(0,0,0,0.5)",
             },
         };
     };
-
     const eventRenderer = ({ event }: { event: IAgendaTypedEvent }) => {
         const { icons, text } = parseEventTitle(event.title);
 
@@ -156,27 +144,10 @@ export const Agenda: React.FC = () => {
                 title={tooltipText}
                 onMouseEnter={() => setHoveredEvent(event)}
                 onMouseLeave={() => setHoveredEvent(null)}
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "3px",
-                    width: "100%",
-                    height: "100%",
-                    fontSize: "0.90",
-                    fontWeight: 700,
-                    color: "white",
-                    textAlign: "center",
-                    padding: "1px 2px",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    cursor: "pointer",
-                }}
             >
                 {icons.length > 0 && (
-                    <span style={{ fontSize: "0.8rem" }}>
-                        {icons.join(" ")}
+                    <span style={{ fontSize: "0.75rem" }}>
+                        {icons.join("")}
                     </span>
                 )}
                 <span>{text}</span>
@@ -202,10 +173,6 @@ export const Agenda: React.FC = () => {
     };
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const doAfterReset = () => {
-        handleCloseEventModal();
-        fetchData(); // Atualiza os eventos após criar
-    };
 
     const [filters, setFilters] = useState<Record<string, boolean>>({
         "🎂": true, // Aniversário
@@ -230,7 +197,7 @@ export const Agenda: React.FC = () => {
         }
         return icons.some((icon) => filters[icon]);
     });
-
+    const [currentView, setCurrentView] = useState<View>("month");
     return (
         <div>
             <div>
@@ -273,6 +240,10 @@ export const Agenda: React.FC = () => {
             </div>
             <div className="agenda-container">
                 <Calendar
+                    views={["month", "week", "day"]}
+                    view={currentView}
+                    onView={(view) => setCurrentView(view)}
+                    className={`custom-calendar ${currentView}`}
                     localizer={localizer}
                     events={filteredEvents}
                     startAccessor="start"
@@ -284,14 +255,17 @@ export const Agenda: React.FC = () => {
                     popup
                     dayLayoutAlgorithm="no-overlap"
                     messages={{
-                        next: "Próximo",
-                        previous: "Anterior",
                         today: "Hoje",
+                        previous: "Anterior",
+                        next: "Próximo",
                         month: "Mês",
                         week: "Semana",
                         day: "Dia",
                         agenda: "Agenda",
-                        showMore: (total) => `+${total} mais`,
+                        date: "Data",
+                        time: "Hora",
+                        event: "Evento",
+                        showMore: (total) => `+${total}`,
                     }}
                     titleAccessor={(event) => {
                         const { icons, text } = parseEventTitle(event.title);
@@ -306,7 +280,7 @@ export const Agenda: React.FC = () => {
             </div>
             {/* Modal Detalhes */}
             <Modal
-                className="d-flex justify-content-center "
+                className="d-flex justify-content-center"
                 show={showDetailModal}
                 onHide={handleCloseDetailModal}
                 centered

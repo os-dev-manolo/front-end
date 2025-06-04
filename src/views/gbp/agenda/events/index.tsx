@@ -18,7 +18,7 @@ export const AgendaEvent = () => {
         <>
             <div className="d-flex justify-content-end gap-5">
                 <Button variant="string" color="black" onClick={handleOpen}>
-                    ➕ Novo Evento
+                    + Novo Evento
                 </Button>
             </div>
 

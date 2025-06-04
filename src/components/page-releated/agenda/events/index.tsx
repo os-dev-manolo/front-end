@@ -53,6 +53,16 @@ export const EventsForm: React.FC<FormProps> = ({ doAfterReset }) => {
                 endDate.setHours(endDate.getHours() + 1);
             }
 
+            // ✅ Validação de data
+            if (endDate < startDate) {
+                showToast({
+                    type: "error",
+                    message:
+                        "A data de término não pode ser anterior à data de início.",
+                });
+                return;
+            }
+
             const colorLetter = colorLetterMap[form.color || ""] || "0";
             const notifyIcon = form.notifyOnDate === "true" ? "#" : "0";
             const iconPart = form.icon || "0";
@@ -83,7 +93,6 @@ export const EventsForm: React.FC<FormProps> = ({ doAfterReset }) => {
         },
         [doAfterReset]
     );
-
     return (
         <div className="max-w-md mx-auto">
             <Unform ref={formRef} onSubmit={onSubmit}>
