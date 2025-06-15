@@ -33,6 +33,8 @@ export default () => {
             pagination={content?.paginate}
             loading={loading}
             reFetch={fetch}
+            className=" "
+            modalTitle="Cadastro de Pessoa Física Simplificado"
         />
     );
 };

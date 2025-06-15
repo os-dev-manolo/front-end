@@ -57,6 +57,7 @@ interface GbpStandardScreenProps<T> {
     pagination?: IPaginate;
     reFetch(force?: boolean): void;
     className?: string;
+    modalTitle?: string;
 }
 
 export function GbpStandardScreen<T>({
@@ -71,6 +72,7 @@ export function GbpStandardScreen<T>({
     loading,
     reFetch,
     className,
+    modalTitle,
 }: GbpStandardScreenProps<T>) {
     const actionsModalRef = useRef<ModalHandles>(null);
     const filtersRef = useRef<FiltersHandles>(null);
@@ -240,6 +242,7 @@ export function GbpStandardScreen<T>({
                 handleCloseModal={handleActionFormState}
                 size="xl"
                 ref={actionsModalRef}
+                title={modalTitle}
             >
                 {register?.form ? (
                     <register.form

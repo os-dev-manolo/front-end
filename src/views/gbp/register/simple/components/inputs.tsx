@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Col, Row } from "react-bootstrap";
 import { Checkbox } from "../../../../../components/global";
 import { Input, InputMultiLined } from "../../../../../components/global/input";
 import { Select } from "../../../../../components/global/select";
@@ -301,8 +302,285 @@ const isPolitician = () => (
 
 const havePublicJob = BooleanSelect("cargo_publico", "Possui cargo público?");
 
-export const FilterInputs = [Id, Name, CreatedAt, UpdatedAt];
+const BoostrapTest = () => {
+    const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatCpf(e.target.value);
+        e.target.value = formatted;
+    };
 
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatPhone(e.target.value);
+        e.target.value = formatted;
+    };
+
+    return (
+        <div className="container">
+            <div className="grid grid-cols-2 gap-1">
+                <div className="container border rounded">
+                    <h2 className="text-2xl font-bold mb-3">Pessoa Física</h2>
+                    <Row className="mb-3">
+                        <Col className="p-0">
+                            <Input
+                                name="nome"
+                                label="Nome completo"
+                                type="text"
+                            />
+                        </Col>
+                    </Row>
+                    <Row className="mb-3">
+                        <Col md={4} className="p-0">
+                            <Input
+                                className="w-100"
+                                name="nascimento"
+                                label="Nascimento"
+                                type="date"
+                            />
+                        </Col>
+                        <Col md={4} className="p-0">
+                            <Input
+                                className="w-100"
+                                name="cpf"
+                                label="CPF"
+                                type="text"
+                                onChange={handleCpfChange}
+                                maxLength={14}
+                            />
+                        </Col>
+                        <Col md={4} className="p-0">
+                            <Select
+                                name="sexo"
+                                label="Sexo"
+                                options={[
+                                    {
+                                        label: "Masculino",
+                                        value: "Masculino",
+                                    },
+                                    {
+                                        label: "Feminino",
+                                        value: "Feminino",
+                                    },
+                                    { label: "Outro", value: "Outro" },
+                                    {
+                                        label: "Não informado",
+                                        value: "Não informado",
+                                    },
+                                ]}
+                            />
+                        </Col>
+                    </Row>
+                </div>
+                <div className="container border rounded">
+                    <h2 className="text-2xl font-bold mb-3">Contato</h2>
+                    <Row className="mb-3">
+                        <Col md={6} className="p-0">
+                            <Input
+                                name="telefone_principal"
+                                label="Telefone principal"
+                                type="text"
+                                onChange={handlePhoneChange}
+                                maxLength={15}
+                            />
+                        </Col>
+                        <Col md={6} className="p-0">
+                            <Input
+                                name="telefone_secundario"
+                                label="Telefone secundário"
+                                type="text"
+                                onChange={handlePhoneChange}
+                                maxLength={15}
+                            />
+                        </Col>
+                    </Row>
+                    <Row className="mb-3">
+                        <Col md={6} className="p-0">
+                            <Input
+                                name="email_pessoal"
+                                label="Email principal"
+                                type="text"
+                            />
+                        </Col>
+                        <Col md={6} className="p-0">
+                            <Input
+                                name="email_comercial"
+                                label="Email secundário"
+                                type="text"
+                            />
+                        </Col>
+                    </Row>
+                </div>
+                <div className="container border rounded">
+                    <h2 className="text-2xl font-bold mb-3">
+                        Endereço Residencial
+                    </h2>
+                    <Row className="mb-3">
+                        <Col md={4} className="p-0">
+                            <Input
+                                className="w-100"
+                                name="residencial_estado"
+                                label="Estado"
+                                type="text"
+                            />
+                        </Col>
+                        <Col md={4} className="p-0">
+                            <Input
+                                className="w-100"
+                                name="residencial_cidade"
+                                label="Cidade"
+                                type="text"
+                            />
+                        </Col>
+                        <Col md={4} className="p-0">
+                            <Input
+                                className="w-100"
+                                name="residencial_cep"
+                                label="CEP"
+                                type="text"
+                            />
+                        </Col>
+                    </Row>
+                    <Row className="mb-3">
+                        <Col md={4} className="p-0">
+                            <Input
+                                className="w-100"
+                                name="residencial_bairro"
+                                label="Bairro"
+                                type="text"
+                            />
+                        </Col>
+                        <Col md={6} className="p-0">
+                            <Input
+                                name="residencial_endereco"
+                                label="Endereço"
+                                type="text"
+                            />
+                        </Col>
+                        <Col md={2} className="p-0">
+                            <Input
+                                className="w-100"
+                                name="residencial_numero"
+                                label="Número"
+                                type="text"
+                            />
+                        </Col>
+                    </Row>
+                    <Row className="mb-3">
+                        <Col className="p-0">
+                            <Input
+                                className="w-100"
+                                name="residencial_complemento"
+                                label="Complemento"
+                                type="text"
+                            />
+                        </Col>
+                    </Row>
+                </div>
+                <div className="container border rounded">
+                    <h2 className="text-2xl font-bold mb-3">
+                        Endereço Comercial
+                    </h2>
+                    <Row className="mb-3">
+                        <Col md={4} className="p-0">
+                            <Input
+                                className="w-100"
+                                name="comercial_estado"
+                                label="Estado"
+                                type="text"
+                            />
+                        </Col>
+                        <Col md={4} className="p-0">
+                            <Input
+                                className="w-100"
+                                name="comercial_cidade"
+                                label="Cidade"
+                                type="text"
+                            />
+                        </Col>
+                        <Col md={4} className="p-0">
+                            <Input
+                                className="w-100"
+                                name="comercial_cep"
+                                label="CEP"
+                                type="text"
+                            />
+                        </Col>
+                    </Row>
+                    <Row className="mb-3">
+                        <Col md={4} className="p-0">
+                            <Input
+                                className="w-100"
+                                name="comercial_bairro"
+                                label="Bairro"
+                                type="text"
+                            />
+                        </Col>
+                        <Col md={6} className="p-0">
+                            <Input
+                                name="comercial_endereco"
+                                label="Endereço"
+                                type="text"
+                            />
+                        </Col>
+                        <Col md={2} className="p-0">
+                            <Input
+                                className="w-100"
+                                name="comercial_numero"
+                                label="Número"
+                                type="text"
+                            />
+                        </Col>
+                    </Row>
+                    <Row className="mb-3">
+                        <Col className="p-0">
+                            <Input
+                                className="w-100"
+                                name="comercial_complemento"
+                                label="Complemento"
+                                type="text"
+                            />
+                        </Col>
+                    </Row>
+                </div>
+                <div className="container border rounded">
+                    <h2 className="text-2xl font-bold mb-3">Adicionais</h2>
+                    <Row className="mb-3">
+                        <Col md={6} className="p-0">
+                            <Select
+                                name="cargo_publico"
+                                label="Possui cargo público?"
+                                options={[
+                                    { label: "Possui", value: "true" },
+                                    { label: "Não possui", value: "false" },
+                                ]}
+                            />
+                        </Col>
+                        <Col md={6}>
+                            <Checkbox
+                                name="newsletter"
+                                label="Autoriza newsletter"
+                            />
+                        </Col>
+                    </Row>
+                </div>
+                <div className="container border rounded">
+                    <Row>
+                        <Col md={12} className="p-0">
+                            <InputMultiLined
+                                name="observacao"
+                                type="text"
+                                label="Observação"
+                            />
+                        </Col>
+                    </Row>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default BoostrapTest;
+
+export const FilterInputs = [Id, Name, CreatedAt, UpdatedAt];
+/*
 export const CreateInputs = [
     Name,
     Document,
@@ -346,3 +624,7 @@ export const UpdateInputs = [
     Newsletter,
     Observation,
 ];
+*/
+export const CreateInputs = [BoostrapTest];
+
+export const UpdateInputs = [BoostrapTest];

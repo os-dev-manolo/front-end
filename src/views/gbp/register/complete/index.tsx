@@ -33,6 +33,7 @@ export const CompleteRegister: React.FC = () => {
             loading={loading}
             reFetch={fetch}
             className=" "
+            modalTitle="Cadastro de Pessoa Física Completo"
         />
     );
 };

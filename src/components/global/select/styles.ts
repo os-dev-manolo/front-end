@@ -9,7 +9,7 @@ export const MessageError = styled.p`
 
 export const LabelContainer = styled.div`
     position: absolute;
-    margin-left: 41px;
+    margin-left: 5px;
     margin-bottom: 45px;
     background-color: white;
     height: 15px;
