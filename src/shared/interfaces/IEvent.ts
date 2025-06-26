@@ -2,12 +2,13 @@ export interface IAgendaEvent {
     id?: number | string;
     title: string;
     description?: string;
-    allday: string;
+    allday?: string;
     start: Date;
     end: Date;
-    members: string;
+    members?: string[];
     color?: string;
     notifyOnDate?: boolean;
+    rrule?: string;
 }
 
 export interface IAgendaEventResponse {
@@ -24,14 +25,18 @@ export interface IAgendaEventResponse {
 }
 
 export interface IAgendaTypedEvent {
-    description: string;
+    originalId: string | number | undefined;
+    description?: string;
     icon?: unknown;
     type: unknown;
-    resource: unknown;
-    id: number;
+    id?: string | number;
     title: string;
     allDay: boolean;
     start: Date;
     end: Date;
     reminder?: boolean;
+    rrule?: string; // exemplo: "monday,wednesday,friday"
+    members?: string[];
+    color?: string;
+    notifyOnDate?: boolean;
 }

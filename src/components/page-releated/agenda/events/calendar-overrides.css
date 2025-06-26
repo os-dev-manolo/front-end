@@ -35,10 +35,10 @@
 .rbc-btn-group button {
     background-color: white;
     border: 1px solid #d0d0d0;
-    padding: 6px 12px;
+    padding: 5px 6px;
     border-radius: 8px;
-    cursor: pointer;
     font-weight: 500;
+    font-size: 13px;
     transition: background-color 0.5s ease;
 }
 
@@ -58,11 +58,11 @@
 }
 
 .rbc-month-row + .rbc-month-row {
-    border-top: 1px solid #e0e0e0;
+    border-top: 0px solid #e0e0e0;
 }
 
 .rbc-day-bg + .rbc-day-bg {
-    border-left: 1px solid #e0e0e0;
+    border-left: 0px solid #e0e0e0;
 }
 
 .rbc-time-view,
@@ -72,11 +72,11 @@
 
 /* ----------- Dias e slots ----------- */
 .rbc-off-range-bg {
-    background-color: #f5f5f5;
+    background-color: #e2ceceb6;
 }
 
 .rbc-today {
-    background-color: rgba(74, 46, 163, 0.07);
+    background-color: rgba(73, 46, 163, 0.246);
 }
 
 /* ----------- Eventos ----------- */
@@ -84,11 +84,11 @@
     background-color: #401db4;
     color: white;
     font-weight: 300;
-    display: flex;
+    display: block;
+        box-sizing: border-box;
     align-items: center;
     justify-content: center;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-    cursor: pointer;
 }
 
 .rbc-event-content {
@@ -98,7 +98,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    padding: 2px;
+    padding: 0px;
 }
 
 .rbc-event:hover {
@@ -207,7 +207,7 @@
     min-height: 20px;
     flex-flow: column wrap;
     overflow: hidden;
-    position: absolute;
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -224,6 +224,7 @@
     overflow-wrap: break-word;
     text-align: center; /* opcional, centraliza */
     font-size: 10px;
+    pointer-events: none !important;
 }
 
 .rbc-day-slot .rbc-event-content {
@@ -241,4 +242,16 @@
     overflow-wrap: break-word;
     text-align: center; /* opcional, centraliza */
     font-size: 12px;
+}
+
+
+
+.rbc-show-more {
+    background-color: transparent !important;
+    color: #401db4; /* ou a cor que você quiser pro texto */
+    font-weight: 700;
+    box-shadow: none;
+    padding: 0px 4px;
+    font-size: 12px;
+    border: none;
 }
