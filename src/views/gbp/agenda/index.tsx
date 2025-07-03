@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-console */
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import { View } from "react-big-calendar";
 import { rrulestr } from "rrule";
 import {
@@ -32,10 +30,8 @@ import {
     LoadingContext,
     handleNavigate,
 } from "./imports";
-import { generateRRuleInstances } from "./rrule-instances";
 
 const localizer = momentLocalizer(moment);
-
 export const Agenda: React.FC = () => {
     const { filters, setFilters } = useFilters();
     const { setLoading } = useContext(LoadingContext);
@@ -43,11 +39,10 @@ export const Agenda: React.FC = () => {
         start: moment().startOf("month").toDate(),
         end: moment().endOf("month").toDate(),
     }));
-    const [editScope, setEditScope] = useState<
-        "only" | "thisAndFuture" | "all"
-    >("all");
-    const [deleteScope] = useState<"only" | "thisAndFuture" | "all">("all");
-
+    const [showDeleteScopeModal, setShowDeleteScopeModal] = useState(false);
+    const [deleteScope, setDeleteScope] = useState<
+        "only" | "all" | "thisAndFuture"
+    >("only");
     const [typedEvents, setEventos] = useState<IAgendaTypedEvent[]>([]);
     const [currentView, setCurrentView] = useState<View>("month");
     const [selectedEvent, setSelectedEvent] =
@@ -60,6 +55,7 @@ export const Agenda: React.FC = () => {
             handleNavigate(date, currentView, setDateRange);
         }, 250);
     };
+
     const [menuVisible, setMenuVisible] = useState(false);
     const [menuPosition, setMenuPosition] = useState<{
         x: number;
@@ -76,7 +72,7 @@ export const Agenda: React.FC = () => {
 
     const parseEventTitle = (
         title: string,
-        rrule?: string,
+        _rrule?: string,
         members?: any[]
     ) => {
         const chars = Array.from(title.trim());
@@ -92,8 +88,6 @@ export const Agenda: React.FC = () => {
         const text = chars.slice(i).join("").trim();
         const icons = tags.map((tag) => iconMap[tag]).filter(Boolean);
 
-        // ♾️ se recorrente
-        if (rrule) icons.push("🔗");
         // 👥 se tem participantes
         if (members && members.length > 0) icons.push("👥");
         return { colorLetter, icons, text };
@@ -114,13 +108,35 @@ export const Agenda: React.FC = () => {
             .filter((event) => {
                 const { icons } = parseEventTitle(
                     event.title,
-                    event.rrule,
+                    undefined,
                     event.members
                 );
                 if (icons.length === 0) return filters[""];
                 return icons.some((icon) => filters[icon]);
             });
     }, [typedEvents, filters, dateRange]);
+
+    function expandEvent(
+        event: IAgendaTypedEvent,
+        rangeStart: Date,
+        rangeEnd: Date
+    ): IAgendaTypedEvent[] {
+        // Evita expandir eventos que já são instância (id com hífen ou originalId definido)
+        if (!event.rrule || String(event.id).includes("-") || event.originalId)
+            return [event];
+        const dur =
+            new Date(event.end).getTime() - new Date(event.start).getTime();
+        const rule = rrulestr(event.rrule);
+        const dates = rule.between(rangeStart, rangeEnd, true);
+
+        return dates.map((date) => ({
+            ...event,
+            start: date,
+            end: new Date(date.getTime() + dur),
+            id: `${event.id}-${date.toISOString()}`,
+            originalId: event.id,
+        }));
+    }
 
     const fetchData = async () => {
         try {
@@ -134,8 +150,16 @@ export const Agenda: React.FC = () => {
                 ...e,
                 start: new Date(e.start),
                 end: new Date(e.end),
-                members: Array.isArray(e.members) ? e.members : [], // <--- ESSA LINHA GARANTE!
+                members: Array.isArray(e.members) ? e.members : [],
             }));
+
+            const rangeStart = dateRange.start;
+            const rangeEnd = dateRange.end;
+
+            // Só expande os eventos base (id sem "-")
+            const expandedEvents = events.flatMap((ev) =>
+                expandEvent(ev, rangeStart, rangeEnd)
+            );
 
             const birthdays = birthdaysResponse.data.flatMap((pessoa: any) => {
                 const nascimento = moment(pessoa.nascimento);
@@ -189,14 +213,12 @@ export const Agenda: React.FC = () => {
                 ).filter(Boolean);
             });
 
-            setEventos([...events, ...birthdays]);
+            setEventos([...expandedEvents, ...birthdays]);
         } finally {
             setLoading(false);
         }
     };
-
     useEffect(() => {
-        // Inicializa com o mês atual
         onNavigate(new Date());
     }, []);
 
@@ -207,7 +229,7 @@ export const Agenda: React.FC = () => {
     const eventPropGetter = (event: IAgendaTypedEvent) => {
         const { colorLetter } = parseEventTitle(
             event.title,
-            event.rrule,
+            undefined,
             event.members
         );
         return {
@@ -217,31 +239,6 @@ export const Agenda: React.FC = () => {
                 boxShadow: "0 1px 4px rgba(0,0,0,0.5)",
             },
         };
-    };
-
-    const handleEdit = (scope: "only" | "thisAndFuture" | "all") => {
-        setEditScope(scope);
-        setShowEditModal(true);
-        setMenuVisible(false);
-    };
-
-    const handleDelete = async (scope: "only" | "thisAndFuture" | "all") => {
-        if (!selectedEvent) return;
-        const id = String(selectedEvent.id).split("-")[0];
-        const date = moment(selectedEvent.start).toISOString();
-
-        try {
-            await AgendaApiService.deleteEvent(Number(id), {
-                scope,
-                date,
-            });
-            toast.success("Evento deletado!");
-            fetchData(); // 🔥 Atualiza os eventos na tela SEMPRE após exclusão
-        } catch (error) {
-            toast.error("Erro ao deletar evento.");
-        } finally {
-            setMenuVisible(false);
-        }
     };
 
     const handleSelectEvent = (
@@ -254,26 +251,18 @@ export const Agenda: React.FC = () => {
         setMenuVisible(true);
     };
 
-    const handleConfirmDelete = async () => {
+    const handleDelete = async () => {
         if (!eventToDelete) return;
-
-        const baseId = String(eventToDelete.id).split("-")[0];
-        const eventDate = moment(eventToDelete.start).toISOString();
+        const id = String(eventToDelete.id).split("-")[0];
 
         try {
-            await AgendaApiService.deleteEvent(Number(baseId), {
-                scope: deleteScope,
-                date: eventDate,
-            });
-
-            // Sempre recarrega do backend após qualquer delete/split!
-            await fetchData();
-
-            toast.success("Evento excluído com sucesso!");
-        } catch (err) {
-            console.error(err);
-            toast.error("Erro ao excluir o evento.");
+            await AgendaApiService.deleteEvent(Number(id));
+            toast.success("Evento deletado!");
+            fetchData();
+        } catch (error) {
+            toast.error("Erro ao deletar evento.");
         } finally {
+            setMenuVisible(false);
             setShowDeleteModal(false);
             setEventToDelete(null);
         }
@@ -292,35 +281,6 @@ export const Agenda: React.FC = () => {
         return () => document.removeEventListener("mousedown", clickOutside);
     }, [menuVisible]);
 
-    function isFirstOccurrence(event: IAgendaTypedEvent) {
-        if (!event.rrule) return false;
-        try {
-            const rule = rrulestr(event.rrule);
-            const occurrences = rule.all();
-            if (!occurrences.length) return false;
-            const thisEventTime = new Date(event.start).getTime();
-            const firstOccurrenceTime = occurrences[0].getTime();
-            return thisEventTime === firstOccurrenceTime;
-        } catch (e) {
-            return false;
-        }
-    }
-
-    function isLastOccurrence(event: IAgendaTypedEvent) {
-        if (!event.rrule) return false;
-        try {
-            const rule = rrulestr(event.rrule);
-            const occurrences = rule.all();
-            if (!occurrences.length) return false;
-            const thisEventTime = new Date(event.start).getTime();
-            const lastOccurrenceTime =
-                occurrences[occurrences.length - 1].getTime();
-            return thisEventTime === lastOccurrenceTime;
-        } catch (e) {
-            return false;
-        }
-    }
-
     const toggleFilter = (icon: string) => {
         setFilters((prev) => ({ ...prev, [icon]: !prev[icon] }));
     };
@@ -328,7 +288,7 @@ export const Agenda: React.FC = () => {
     const getEventTitle = (event: IAgendaTypedEvent) => {
         const { icons, text } = parseEventTitle(
             event.title,
-            event.rrule,
+            undefined,
             event.members
         );
         return `${icons.join(" ")} ${text}`.trim();
@@ -337,7 +297,7 @@ export const Agenda: React.FC = () => {
     const getEventType = (event: IAgendaTypedEvent) => {
         const { icons } = parseEventTitle(
             event.title,
-            event.rrule,
+            undefined,
             event.members
         );
         return icons.map((i) => iconDescriptions[i] || "Evento").join(", ");
@@ -346,7 +306,7 @@ export const Agenda: React.FC = () => {
     const eventRenderer = ({ event }: { event: IAgendaTypedEvent }) => {
         const { icons, text } = parseEventTitle(
             event.title,
-            event.rrule,
+            undefined,
             event.members
         );
         const tooltip = [text, ...icons.map((i) => iconDescriptions[i])]
@@ -392,51 +352,32 @@ export const Agenda: React.FC = () => {
                     setEventos((prev) => [...prev, typedTempEvent]);
 
                     try {
-                        // ⬇️ Cria evento com membros já juntos (sem chamada separada de addEventMembers!)
                         const result = await AgendaApiService.createEvent(
                             newEvent
                         );
 
-                        // result.members já vem certo do backend
                         const savedEvent = {
                             ...result,
                             start: new Date(result.start),
                             end: new Date(result.end),
                             members: Array.isArray(result.members)
                                 ? result.members
-                                : [], // <-- GARANTE
+                                : [],
                         };
-
-                        // Instâncias de recorrência
-                        const instances = generateRRuleInstances(
-                            savedEvent,
-                            dateRange
-                        );
-
-                        const eventsToAdd =
-                            instances.length > 0
-                                ? instances.map((ev) => ({
-                                      ...ev,
-                                      members: savedEvent.members, // <-- Sempre propaga os membros!
-                                  }))
-                                : [
-                                      {
-                                          ...savedEvent,
-                                          id: String(savedEvent.id),
-                                          type: "event",
-                                          allDay: !!savedEvent.allday,
-                                          originalId: undefined,
-                                      },
-                                  ];
 
                         setEventos((prev) => [
                             ...prev.filter((ev) => ev.id !== tempId),
-                            ...eventsToAdd,
+                            {
+                                ...savedEvent,
+                                id: String(savedEvent.id),
+                                type: "event",
+                                allDay: !!savedEvent.allday,
+                                originalId: undefined,
+                            },
                         ]);
-                        await AgendaApiService.createEvent(newEvent);
-                        await fetchData(); // <--- Força reload do backend!
 
                         toast.success("Evento criado com sucesso!");
+                        await fetchData();
                     } catch (error) {
                         setEventos((prev) =>
                             prev.filter((ev) => ev.id !== tempId)
@@ -537,104 +478,136 @@ export const Agenda: React.FC = () => {
                     >
                         👁️ Visualizar
                     </Button>
-
-                    {selectedEvent?.rrule ? (
-                        // Evento recorrente: mostra opções de escopo
-                        <>
-                            <Dropdown className="w-100 mb-1">
-                                <Dropdown.Toggle
-                                    variant="outline-primary"
-                                    className="w-100"
-                                >
-                                    📝 Editar
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu>
-                                    <Dropdown.Item
-                                        onClick={() => handleEdit("only")}
-                                    >
-                                        Somente este
-                                    </Dropdown.Item>
-                                    {/* Só exibe "Este e os futuros" se NÃO for primeira nem última */}
-                                    {!isFirstOccurrence(selectedEvent) &&
-                                        !isLastOccurrence(selectedEvent) && (
-                                            <Dropdown.Item
-                                                onClick={() =>
-                                                    handleEdit("thisAndFuture")
-                                                }
-                                            >
-                                                Este e os futuros
-                                            </Dropdown.Item>
-                                        )}
-                                    <Dropdown.Item
-                                        onClick={() => handleEdit("all")}
-                                    >
-                                        Todos
-                                    </Dropdown.Item>
-                                </Dropdown.Menu>
-                            </Dropdown>
-
-                            <Dropdown className="w-100">
-                                <Dropdown.Toggle
-                                    variant="outline-danger"
-                                    className="w-100"
-                                >
-                                    ❌ Excluir
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu>
-                                    <Dropdown.Item
-                                        onClick={() => handleDelete("only")}
-                                    >
-                                        Somente este
-                                    </Dropdown.Item>
-                                    {/* Só exibe "Este e os futuros" se NÃO for primeira nem última */}
-                                    {!isFirstOccurrence(selectedEvent) &&
-                                        !isLastOccurrence(selectedEvent) && (
-                                            <Dropdown.Item
-                                                onClick={() =>
-                                                    handleDelete(
-                                                        "thisAndFuture"
-                                                    )
-                                                }
-                                            >
-                                                Este e os futuros
-                                            </Dropdown.Item>
-                                        )}
-                                    <Dropdown.Item
-                                        onClick={() => handleDelete("all")}
-                                    >
-                                        Todos
-                                    </Dropdown.Item>
-                                </Dropdown.Menu>
-                            </Dropdown>
-                        </>
-                    ) : (
-                        // Evento único: editar/excluir direto
-                        <>
-                            <Button
-                                variant="outline-primary"
-                                className="w-100 mb-1"
-                                onClick={() => {
-                                    setShowEditModal(true);
-                                    setMenuVisible(false);
-                                }}
-                            >
-                                📝 Editar
-                            </Button>
-                            <Button
-                                variant="outline-danger"
-                                className="w-100"
-                                onClick={() => {
-                                    setEventToDelete(selectedEvent);
-                                    setShowDeleteModal(true);
-                                    setMenuVisible(false);
-                                }}
-                            >
-                                ❌ Excluir
-                            </Button>
-                        </>
-                    )}
+                    <Button
+                        variant="outline-primary"
+                        className="w-100 mb-1"
+                        onClick={() => {
+                            setShowEditModal(true);
+                            setMenuVisible(false);
+                        }}
+                    >
+                        📝 Editar
+                    </Button>
+                    <Button
+                        variant="outline-danger"
+                        className="w-100"
+                        onClick={() => {
+                            if (selectedEvent?.rrule) {
+                                setShowDeleteScopeModal(true);
+                                setMenuVisible(false);
+                            } else {
+                                setEventToDelete(selectedEvent);
+                                setShowDeleteModal(true);
+                                setMenuVisible(false);
+                            }
+                        }}
+                    >
+                        ❌ Excluir
+                    </Button>
                 </div>
             )}
+
+            <Modal
+                show={showDeleteScopeModal}
+                onHide={() => setShowDeleteScopeModal(false)}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Excluir Evento Recorrente</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>
+                        Este evento faz parte de uma recorrência. O que você
+                        deseja excluir?
+                    </p>
+                    <div>
+                        <label className="d-block">
+                            <input
+                                type="radio"
+                                name="deleteScope"
+                                value="only"
+                                checked={deleteScope === "only"}
+                                onChange={() => setDeleteScope("only")}
+                            />
+                            Só esta ocorrência
+                        </label>
+                        <label className="d-block">
+                            <input
+                                type="radio"
+                                name="deleteScope"
+                                value="thisAndFuture"
+                                checked={deleteScope === "thisAndFuture"}
+                                onChange={() => setDeleteScope("thisAndFuture")}
+                            />
+                            Desta ocorrência em diante
+                        </label>
+                        <label className="d-block">
+                            <input
+                                type="radio"
+                                name="deleteScope"
+                                value="all"
+                                checked={deleteScope === "all"}
+                                onChange={() => setDeleteScope("all")}
+                            />
+                            Todas as ocorrências
+                        </label>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button
+                        variant="secondary"
+                        onClick={() => setShowDeleteScopeModal(false)}
+                    >
+                        Cancelar
+                    </Button>
+                    <Button
+                        variant="danger"
+                        onClick={async () => {
+                            if (selectedEvent) {
+                                if (deleteScope === "only") {
+                                    await AgendaApiService.createEventException(
+                                        Number(
+                                            selectedEvent.originalId ??
+                                                selectedEvent.id
+                                        ),
+                                        {
+                                            date: moment(
+                                                selectedEvent.start
+                                            ).format("YYYY-MM-DD"),
+                                            action: "delete",
+                                        }
+                                    );
+                                }
+                                if (deleteScope === "all") {
+                                    await AgendaApiService.deleteEvent(
+                                        Number(
+                                            selectedEvent.originalId ??
+                                                selectedEvent.id
+                                        )
+                                    );
+                                }
+                                if (deleteScope === "thisAndFuture") {
+                                    await AgendaApiService.deleteRecurringFromDate(
+                                        Number(
+                                            selectedEvent.originalId ??
+                                                selectedEvent.id
+                                        ),
+                                        {
+                                            fromDate: moment(
+                                                selectedEvent.start
+                                            ).format("YYYY-MM-DD"),
+                                        }
+                                    );
+                                }
+                                setShowDeleteScopeModal(false);
+                                setShowDeleteModal(false);
+                                fetchData();
+                            }
+                        }}
+                    >
+                        Excluir
+                    </Button>
+                </Modal.Footer>
+            </Modal>
 
             {showDeleteModal && (
                 <Modal show onHide={() => setShowDeleteModal(false)}>
@@ -655,7 +628,7 @@ export const Agenda: React.FC = () => {
                         >
                             Cancelar
                         </Button>
-                        <Button variant="danger" onClick={handleConfirmDelete}>
+                        <Button variant="danger" onClick={handleDelete}>
                             Excluir
                         </Button>
                     </Modal.Footer>
@@ -672,11 +645,9 @@ export const Agenda: React.FC = () => {
 
             {showEditModal && selectedEvent && (
                 <AgendaEventEdit
-                    scope={editScope}
                     event={selectedEvent}
                     onClose={() => setShowEditModal(false)}
                     onEventUpdated={() => {
-                        // ⚠️ Recarrega tudo sempre após editar split/salvar!
                         fetchData();
                         setShowEditModal(false);
                         toast.success("Evento atualizado na agenda!");

@@ -1,7 +1,8 @@
-/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FormHandles } from "@unform/core";
+import { RRule, Frequency, Weekday } from "rrule";
 import { showToast } from "../../../global/toast";
 import { IAgendaEvent } from "../../../../shared/interfaces/IEvent";
 import {
@@ -13,41 +14,72 @@ import {
 import { EventForm } from "./eventForm";
 import { semvApi } from "../../../../shared/services/axios/apis.service";
 
+// --- AUX: Monta RRULE string a partir dos campos do form
+const freqMap: Record<string, Frequency> = {
+    daily: Frequency.DAILY,
+    weekly: Frequency.WEEKLY,
+    monthly: Frequency.MONTHLY,
+    yearly: Frequency.YEARLY,
+};
+
+const weekDayMap: Record<string, Weekday> = {
+    MO: new Weekday(0),
+    TU: new Weekday(1),
+    WE: new Weekday(2),
+    TH: new Weekday(3),
+    FR: new Weekday(4),
+    SA: new Weekday(5),
+    SU: new Weekday(6),
+};
+
+function buildRRule(form: any): string | undefined {
+    if (!form || form.recurrenceType === "none") return undefined;
+
+    const freq = freqMap[form.recurrenceType];
+    if (!freq) return undefined;
+
+    const options: any = {
+        freq,
+        interval: Number(form.recurrenceInterval) || 1,
+        dtstart: form.date ? new Date(form.date) : undefined,
+    };
+
+    if (form.recurrenceType === "weekly" && form.rruleDays?.length) {
+        options.byweekday = form.rruleDays.map((d: string) => weekDayMap[d]).filter(Boolean);
+    }
+    if (form.recurrenceEndType === "onDate" && form.recurrenceEndDate) {
+        options.until = new Date(form.recurrenceEndDate);
+    }
+    if (form.recurrenceEndType === "count" && form.recurrenceCount) {
+        options.count = Number(form.recurrenceCount);
+    }
+
+    try {
+        return new RRule(options).toString();
+    } catch (e) {
+        return undefined;
+    }
+}
+
+// --- Componente principal
 interface FormProps {
     doAfterReset(event?: IAgendaEvent): void;
     initialData?: IAgendaEvent;
     onEventUpdated?(updatedEvent: IAgendaEvent): void;
-    scope?: "only" | "thisAndFuture" | "all";
-    occurrenceDate?: Date;
 }
 
 export const EventsForm: React.FC<FormProps> = ({
     doAfterReset,
     initialData,
     onEventUpdated,
-    scope,
-    occurrenceDate,
 }) => {
     const formRef = useRef<FormHandles>(null);
     const [, setLoading] = useState<boolean>(false);
     const [peopleOptions, setPeopleOptions] = useState<
         { value: string; label: string }[]
     >([]);
-    const [selectedGuests, setSelectedGuests] = useState<
-        { value: string; label: string }[]
-    >([]);
 
-    // Formata datetime-local
-    const formatDateTimeLocal = (date?: Date) => {
-        if (!date) return "";
-        const d = new Date(date);
-        const pad = (n: number) => (n < 10 ? `0${n}` : n);
-        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
-            d.getDate()
-        )}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    };
-
-    // Parse do title pra remontar formulário
+    // Função auxiliar para separar info do title composto
     const parseTitle = (fullTitle: string) => {
         const colorLetter = fullTitle.charAt(0);
         const notifyIcon = fullTitle.charAt(1);
@@ -58,7 +90,7 @@ export const EventsForm: React.FC<FormProps> = ({
         return { color, notifyOnDate, icon: iconPart, title };
     };
 
-    // Carrega opções de convidados
+    // Carrega pessoas para autocomplete de convidados
     useEffect(() => {
         async function loadPeople() {
             try {
@@ -78,61 +110,8 @@ export const EventsForm: React.FC<FormProps> = ({
         loadPeople();
     }, []);
 
-    // Preenche formulário quando abre
-    useEffect(() => {
-        if (initialData && peopleOptions.length > 0 && formRef.current) {
-            const { color, notifyOnDate, icon, title } = parseTitle(
-                initialData.title
-            );
-
-            formRef.current.setData({
-                title,
-                notifyOnDate,
-                icon,
-                color,
-                date: formatDateTimeLocal(initialData.start),
-                endDate: formatDateTimeLocal(initialData.end),
-                description: initialData.description || "",
-                members: initialData.members || [],
-            });
-
-            // Monta convidados já selecionados
-            const guests =
-                initialData.members?.map((id) => {
-                    const found = peopleOptions.find(
-                        (p) => p.value === String(id)
-                    );
-                    return found ?? { value: String(id), label: `ID: ${id}` };
-                }) || [];
-            setSelectedGuests(guests);
-        }
-    }, [initialData, peopleOptions]);
-
-    const addGuest = (guest: { value: string; label: string }) => {
-        if (!selectedGuests.some((g) => g.value === guest.value)) {
-            setSelectedGuests([...selectedGuests, guest]);
-        }
-    };
-
-    const removeGuest = (guestValue: string) => {
-        setSelectedGuests(selectedGuests.filter((g) => g.value !== guestValue));
-    };
-
     const onSubmit = useCallback(
-        async (form: {
-            rrule?: string;
-            color?: string;
-            notifyOnDate?: string;
-            title: string;
-            description: string;
-            allday?: boolean | string;
-            icon: string;
-            date: string;
-            endDate: string;
-            members?: string[];
-            scope?: "only" | "thisAndFuture" | "all";
-            occurrenceDate?: string | Date;
-        }) => {
+        async (form: any) => {
             const startDate = form.date ? new Date(form.date) : undefined;
             let endDate = form.endDate ? new Date(form.endDate) : undefined;
 
@@ -160,12 +139,11 @@ export const EventsForm: React.FC<FormProps> = ({
             const notifyIcon = form.notifyOnDate === "true" ? "#" : "0";
             const iconPart = form.icon || "0";
             const composedTitle = `${colorLetter}${notifyIcon}${iconPart} ${form.title.trim()}`;
-            const members = selectedGuests.map((g) => g.value);
+            const members = form.members ?? [];
 
-            const payload: IAgendaEvent & {
-                scope?: "only" | "thisAndFuture" | "all";
-                occurrenceDate?: string;
-            } = {
+            const rrule = buildRRule(form);
+
+            const payload: IAgendaEvent = {
                 title: composedTitle,
                 allday: String(form.allday),
                 start: startDate,
@@ -173,89 +151,38 @@ export const EventsForm: React.FC<FormProps> = ({
                 color: form.color,
                 description: form.description,
                 members,
-                rrule: form.rrule || undefined,
+                rrule: rrule || undefined,
             };
-
-            if (form.scope) payload.scope = form.scope;
-            if (form.occurrenceDate) {
-                payload.occurrenceDate =
-                    form.occurrenceDate instanceof Date
-                        ? form.occurrenceDate.toISOString()
-                        : form.occurrenceDate;
-            }
 
             try {
                 setLoading(true);
 
                 let eventResult: IAgendaEvent;
-
                 if (initialData && initialData.id) {
-                    // Atualiza evento existente
                     const realId = parseInt(
                         String(initialData.id).split("-")[0],
                         10
                     );
-
                     const response = await semvApi.put(
                         `/agenda/event/${realId}`,
                         payload
                     );
                     eventResult = response.data;
-
-                    // Blindagem: checa campos obrigatórios
-                    if (
-                        !eventResult ||
-                        !eventResult.id ||
-                        !eventResult.start ||
-                        !eventResult.end
-                    ) {
-                        showToast({
-                            type: "error",
-                            message:
-                                "Resposta inesperada do backend ao atualizar evento.",
-                        });
-                        console.error("Resposta inesperada:", eventResult);
-                        doAfterReset();
-                        return;
-                    }
-
                     showToast({
                         type: "success",
                         message: "Evento e membros atualizados com sucesso",
                     });
-
                     doAfterReset(eventResult);
                     onEventUpdated?.(eventResult);
                 } else {
-                    // Criação
                     const response = await semvApi.post(
                         "/agenda/event/new",
                         payload
                     );
                     eventResult = response.data;
-
-                    // Blindagem: checa campos obrigatórios
-                    if (
-                        !eventResult ||
-                        !eventResult.id ||
-                        !eventResult.start ||
-                        !eventResult.end
-                    ) {
-                        showToast({
-                            type: "error",
-                            message:
-                                "Resposta inesperada do backend ao criar evento.",
-                        });
-                        console.error("Resposta inesperada:", eventResult);
-                        doAfterReset();
-                        return;
-                    }
-
-                    // Garante que members é sempre array
                     eventResult.members = Array.isArray(eventResult.members)
                         ? eventResult.members
                         : [];
-
                     showToast({
                         type: "success",
                         message: "Evento criado com sucesso",
@@ -264,11 +191,6 @@ export const EventsForm: React.FC<FormProps> = ({
                     onEventUpdated?.(eventResult);
                 }
             } catch (error: any) {
-                console.error("❌ Erro ao salvar evento:", {
-                    message: error?.message,
-                    response: error?.response?.data,
-                    status: error?.response?.status,
-                });
                 showToast({
                     type: "error",
                     message: `Erro ao processar evento: ${
@@ -279,8 +201,26 @@ export const EventsForm: React.FC<FormProps> = ({
                 setLoading(false);
             }
         },
-        [doAfterReset, initialData, onEventUpdated, selectedGuests]
+        [doAfterReset, initialData, onEventUpdated]
     );
+
+    // Inicializa os dados do evento no formulário
+    const getParsedInitialData = () => {
+        if (!initialData) return undefined;
+        const { color, notifyOnDate, icon, title } = parseTitle(
+            initialData.title
+        );
+        return {
+            ...initialData,
+            icon,
+            color,
+            notifyOnDate,
+            title,
+            allDay: initialData.allday === "true" || initialData.allday,
+            start: initialData.start,
+            end: initialData.end,
+        };
+    };
 
     return (
         <EventForm
@@ -289,11 +229,7 @@ export const EventsForm: React.FC<FormProps> = ({
             iconOptions={iconOptions}
             colorOptions={colorOptions}
             peopleOptions={peopleOptions}
-            selectedGuests={selectedGuests}
-            addGuest={addGuest}
-            removeGuest={removeGuest}
-            scope={scope}
-            occurrenceDate={occurrenceDate}
+            initialData={getParsedInitialData()}
         />
     );
 };

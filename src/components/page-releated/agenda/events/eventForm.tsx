@@ -1,13 +1,15 @@
-/* eslint-disable no-console */
-import React, { RefObject, useState } from "react";
+/* eslint-disable prefer-template */
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { RefObject, useEffect, useState } from "react";
 import { Form as Unform } from "@unform/web";
 import { FormHandles } from "@unform/core";
-import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { RRule, Frequency, Options as RRuleOptions } from "rrule";
+import { Button } from "react-bootstrap";
 import { Checkbox, Input } from "../../../global";
 import { Select } from "../../../global/select";
 import { InputMultiLined } from "../../../global/input";
-import { toast } from "../../../../views/gbp/agenda/imports";
 
 interface OptionType {
     value: string;
@@ -16,51 +18,97 @@ interface OptionType {
 
 interface EventFormProps {
     formRef: RefObject<FormHandles>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSubmit: (data: any) => void;
     iconOptions: OptionType[];
     colorOptions: OptionType[];
     peopleOptions: OptionType[];
-    selectedGuests: OptionType[];
-    addGuest: (guest: OptionType) => void;
-    removeGuest: (guestValue: string) => void;
-    scope?: "only" | "thisAndFuture" | "all";
-    occurrenceDate?: Date;
+    initialData?: any;
 }
 
-// Use o array e a tabela de conversão conforme seu RRule!
-const weekdays = [
-    { name: "recurrence.weekdays.monday", label: "Seg", rruleValue: RRule.MO }, //
-    { name: "recurrence.weekdays.tuesday", label: "Ter", rruleValue: RRule.TU }, // 1
-    {
-        name: "recurrence.weekdays.wednesday",
-        label: "Qua",
-        rruleValue: RRule.WE,
-    }, // 2
-    {
-        name: "recurrence.weekdays.thursday",
-        label: "Qui",
-        rruleValue: RRule.TH,
-    }, // 3
-    { name: "recurrence.weekdays.friday", label: "Sex", rruleValue: RRule.FR }, // 4
-    {
-        name: "recurrence.weekdays.saturday",
-        label: "Sáb",
-        rruleValue: RRule.SA,
-    }, // 6
-    { name: "recurrence.weekdays.sunday", label: "Dom", rruleValue: RRule.SU }, // 5
+const weekDays = [
+    { value: "MO", label: "Segunda" },
+    { value: "TU", label: "Terça" },
+    { value: "WE", label: "Quarta" },
+    { value: "TH", label: "Quinta" },
+    { value: "FR", label: "Sexta" },
+    { value: "SA", label: "Sábado" },
+    { value: "SU", label: "Domingo" },
 ];
 
-// Helper para traduzir getDay() (JS) para weekday do seu RRule
-const jsToRRule: Record<number, number> = {
-    0: 5,
-    1: 0,
-    2: 1,
-    3: 2,
-    4: 3,
-    5: 6,
-    6: 4,
-};
+const recurrenceTypes = [
+    { value: "none", label: "Evento único" },
+    { value: "daily", label: "Diário" },
+    { value: "weekly", label: "Semanal" },
+    { value: "monthly", label: "Mensal" },
+    { value: "yearly", label: "Anual" },
+];
+
+const recurrenceEndTypes = [
+    { value: "never", label: "Nunca" },
+    { value: "onDate", label: "Em uma data" },
+    { value: "count", label: "Após X repetições" },
+];
+
+// PT mapping
+function mapDiaPt(d: string) {
+    return (
+        {
+            MO: "segunda",
+            TU: "terça",
+            WE: "quarta",
+            TH: "quinta",
+            FR: "sexta",
+            SA: "sábado",
+            SU: "domingo",
+        }[d] || d
+    );
+}
+
+function formatDatePt(dt: string) {
+    if (!dt) return "";
+    const d = new Date(dt);
+    return d.toLocaleDateString("pt-BR");
+}
+
+function getRecurrenceSummary({
+    type,
+    interval,
+    days,
+    endType,
+    endDate,
+    count,
+}: {
+    type: string;
+    interval: number;
+    days: string[];
+    endType: string;
+    endDate?: string;
+    count?: number;
+}) {
+    if (type === "none") return "Evento único.";
+    let str = "Este evento se repete ";
+
+    if (type === "daily") {
+        str += interval === 1 ? "todos os dias" : `a cada ${interval} dias`;
+    } else if (type === "weekly") {
+        str += interval === 1 ? "toda semana" : `a cada ${interval} semanas`;
+        if (days?.length) {
+            const dias = days.map(mapDiaPt).join(" e ");
+            str += `, às ${dias}`;
+        }
+    } else if (type === "monthly") {
+        str += interval === 1 ? "todo mês" : `a cada ${interval} meses`;
+    } else if (type === "yearly") {
+        str += interval === 1 ? "todo ano" : `a cada ${interval} anos`;
+    }
+
+    if (endType === "onDate" && endDate) {
+        str += ` até ${formatDatePt(endDate)}`;
+    } else if (endType === "count" && count) {
+        str += ` por ${count} ocorrências`;
+    }
+    return str + ".";
+}
 
 export const EventForm: React.FC<EventFormProps> = ({
     formRef,
@@ -68,150 +116,160 @@ export const EventForm: React.FC<EventFormProps> = ({
     iconOptions,
     colorOptions,
     peopleOptions,
-    selectedGuests,
-    addGuest,
-    removeGuest,
-    scope,
-    occurrenceDate,
+    initialData,
 }) => {
-    const [guestToAdd, setGuestToAdd] = useState<OptionType | undefined>();
-    const [recurrenceType, setRecurrenceType] = useState("none");
+    // Participantes
+    const [guestInput, setGuestInput] = useState("");
+    const [selectedGuests, setSelectedGuests] = useState<OptionType[]>([]);
+    const [guestsInitialized, setGuestsInitialized] = useState(false);
+    const [showList, setShowList] = useState(false);
 
-    const handleGuestChange = (newValue: unknown) => {
-        const option = newValue as OptionType | null;
-        setGuestToAdd(option || undefined);
-    };
+    // Recorrência
+    const [recurrenceType, setRecurrenceType] = useState<string>(
+        initialData?.recurrenceType || "none"
+    );
+    const [recurrenceInterval, setRecurrenceInterval] = useState<number>(
+        initialData?.recurrenceInterval || 1
+    );
+    const [selectedDays, setSelectedDays] = useState<string[]>(
+        initialData?.rruleDays || []
+    );
+    const [recurrenceEndType, setRecurrenceEndType] = useState<string>(
+        initialData?.recurrenceEndType || "never"
+    );
+    const [recurrenceEndDate, setRecurrenceEndDate] = useState<string>(
+        initialData?.recurrenceEndDate || ""
+    );
+    const [recurrenceCount, setRecurrenceCount] = useState<number>(
+        initialData?.recurrenceCount || 1
+    );
+    const [summary, setSummary] = useState("Evento único.");
 
-    const handleAddGuest = () => {
-        if (guestToAdd) {
-            addGuest(guestToAdd);
-            setGuestToAdd(undefined);
-        }
-    };
+    // Atualiza resumo toda vez que algo muda
+    useEffect(() => {
+        setSummary(
+            getRecurrenceSummary({
+                type: recurrenceType,
+                interval: recurrenceInterval,
+                days: selectedDays,
+                endType: recurrenceEndType,
+                endDate: recurrenceEndDate,
+                count: recurrenceCount,
+            })
+        );
+    }, [
+        recurrenceType,
+        recurrenceInterval,
+        selectedDays,
+        recurrenceEndType,
+        recurrenceEndDate,
+        recurrenceCount,
+    ]);
 
-    const handleRecurrenceChange = (newValue: unknown) => {
-        const option = newValue as OptionType | null;
-        setRecurrenceType(option?.value || "none");
-    };
+    useEffect(() => {
+        if (initialData && peopleOptions.length > 0 && !guestsInitialized) {
+            const guests =
+                initialData.members?.map((id: any) => {
+                    const found = peopleOptions.find(
+                        (p) => p.value === String(id)
+                    );
+                    return found ?? { value: String(id), label: `ID: ${id}` };
+                }) || [];
+            setSelectedGuests(guests);
+            setGuestsInitialized(true);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handleSubmit = (data: any) => {
-        const formData = { ...data };
-
-        if (recurrenceType === "custom") {
-            const recurrence = formData.recurrence || {};
-            const { frequency } = recurrence;
-
-            if (!frequency) {
-                toast.error("Frequência de recorrência não selecionada.");
-                return;
-            }
-
-            const interval = parseInt(recurrence.interval || "1", 10);
-
-            // UNTIL (repetição até)
-            let until;
-            if (recurrence.until) {
-                const endTime = formData.endDate
-                    ? new Date(formData.endDate)
-                    : new Date(formData.date);
-                const [y, m, d] = recurrence.until.split("-").map(Number);
-                until = new Date(
-                    y,
-                    m - 1,
-                    d,
-                    endTime.getHours(),
-                    endTime.getMinutes(),
-                    0,
-                    0
-                );
-            }
-
-            // Pega dias marcados (checkboxes)
-            const weekdayValues = recurrence.weekdays || {};
-            const byweekday = weekdays
-                .filter((day) => {
-                    const key = day.name.split(".").pop() || "";
-                    return weekdayValues[key] === "true";
-                })
-                .map((day) => day.rruleValue);
-
-            // Descobre o "start" correto para a primeira ocorrência
-            const originalStart = new Date(formData.date);
-            let realStart = originalStart;
-
-            // Converter getDay() JS para seu RRULE (0=Dom,...,6=Sab)
-            const jsWeek = originalStart.getDay(); // 0=Dom, 6=Sab
-            const rruleWeek = jsToRRule[jsWeek];
-            const selectedWeekdays = byweekday.map((wd) => wd.weekday);
-
-            if (frequency === "weekly" && byweekday.length > 0) {
-                if (!selectedWeekdays.includes(rruleWeek)) {
-                    // Acha o próximo dia válido da semana
-                    selectedWeekdays.sort((a, b) => a - b);
-                    let daysToAdd = null;
-                    // eslint-disable-next-line no-restricted-syntax
-                    for (const wd of selectedWeekdays) {
-                        if (wd > rruleWeek) {
-                            daysToAdd = wd - rruleWeek;
-                            break;
-                        }
-                    }
-                    if (daysToAdd === null && selectedWeekdays.length) {
-                        daysToAdd = 7 - rruleWeek + selectedWeekdays[0];
-                    }
-                    if (daysToAdd !== null) {
-                        realStart = new Date(originalStart);
-                        realStart.setDate(originalStart.getDate() + daysToAdd);
-                        realStart.setHours(originalStart.getHours());
-                        realStart.setMinutes(originalStart.getMinutes());
-                        realStart.setSeconds(0);
-                        realStart.setMilliseconds(0);
-                    }
-                }
-            }
-
-            // Garante que o end também acompanha o novo start
-            let realEnd;
-            if (formData.endDate) {
-                const origEnd = new Date(formData.endDate);
-                const durMs = origEnd.getTime() - originalStart.getTime();
-                realEnd = new Date(realStart.getTime() + durMs);
-            }
-
-            // Monta RRULE
-            const rruleOptions: Partial<RRuleOptions> = {
-                freq: RRule[
-                    frequency.toUpperCase() as keyof typeof RRule
-                ] as Frequency,
-                interval,
-                dtstart: realStart,
-                until,
+            const formatDt = (d?: Date | string) => {
+                if (!d) return "";
+                const date = typeof d === "string" ? new Date(d) : d;
+                const pad = (n: number) => (n < 10 ? `0${n}` : n);
+                return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+                    date.getDate()
+                )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
             };
+            formRef.current?.setData({
+                title: initialData.title || "",
+                icon: initialData.icon || "",
+                color: initialData.color || "",
+                allDay: initialData.allDay ?? false,
+                notifyOnDate: initialData.notifyOnDate ?? false,
+                date: initialData.start ? formatDt(initialData.start) : "",
+                endDate: initialData.end ? formatDt(initialData.end) : "",
+                description: initialData.description || "",
+            });
 
-            if (byweekday.length > 0) {
-                rruleOptions.byweekday = byweekday;
-            }
+            setRecurrenceType(initialData.recurrenceType || "none");
+            setRecurrenceInterval(initialData.recurrenceInterval || 1);
+            setSelectedDays(initialData.rruleDays || []);
+            setRecurrenceEndType(initialData.recurrenceEndType || "never");
+            setRecurrenceEndDate(initialData.recurrenceEndDate || "");
+            setRecurrenceCount(initialData.recurrenceCount || 1);
+        }
+        if (!initialData) {
+            setGuestsInitialized(false);
+            setSelectedGuests([]);
+            setGuestInput("");
+        }
+    }, [initialData, peopleOptions, guestsInitialized, formRef]);
 
-            const rule = new RRule(rruleOptions);
-            formData.rrule = rule.toString();
+    // AutoComplete – filtra e exibe
+    const filteredOptions =
+        guestInput.length > 0
+            ? peopleOptions
+                  .filter(
+                      (opt) =>
+                          opt.label
+                              .toLowerCase()
+                              .includes(guestInput.toLowerCase()) &&
+                          !selectedGuests.some((g) => g.value === opt.value)
+                  )
+                  .slice(0, 20)
+            : [];
 
-            // Aqui o segredo: seta os campos corretos!
-            formData.date = realStart.toISOString();
-            formData.endDate = realEnd ? realEnd.toISOString() : undefined;
-            // Se você usa "start" e "end" no payload:
-            formData.start = realStart.toISOString();
-            if (realEnd) formData.end = realEnd.toISOString();
+    const handleAddGuest = (guest: OptionType) => {
+        if (guest && !selectedGuests.some((g) => g.value === guest.value)) {
+            setSelectedGuests([...selectedGuests, guest]);
+            setGuestInput("");
+            setShowList(false);
+        }
+    };
+
+    const handleRemoveGuest = (guestValue: string) => {
+        setSelectedGuests(selectedGuests.filter((g) => g.value !== guestValue));
+    };
+
+    const handleSubmit = (rawData: Record<string, any>) => {
+        const data = { ...rawData };
+        data.start = data.date;
+        data.end = data.endDate;
+        data.members = selectedGuests.map((g) => g.value);
+
+        console.log("🎯 Enviando formulário com convidados:", data.members);
+        if (recurrenceType !== "none") {
+            data.recurrenceType = recurrenceType;
+            data.recurrenceInterval = recurrenceInterval;
+            data.rruleDays = selectedDays;
+            data.recurrenceEndType = recurrenceEndType;
+            data.recurrenceEndDate =
+                recurrenceEndType === "onDate" ? recurrenceEndDate : undefined;
+            data.recurrenceCount =
+                recurrenceEndType === "count" ? recurrenceCount : undefined;
+        } else {
+            data.recurrenceType = "none";
+            data.recurrenceInterval = 1;
+            data.rruleDays = [];
+            data.recurrenceEndType = "never";
+            data.recurrenceEndDate = undefined;
+            data.recurrenceCount = undefined;
         }
 
-        // DEBUG FINAL (opcional)
-        console.log("🚀 Payload para onSubmit:", {
-            ...formData,
-            scope,
-            occurrenceDate,
-        });
+        onSubmit(data);
+    };
 
-        onSubmit({ ...formData, scope, occurrenceDate });
+    // Toggle dias da semana
+    const toggleDay = (day: string) => {
+        setSelectedDays((prev) =>
+            prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+        );
     };
 
     return (
@@ -221,7 +279,6 @@ export const EventForm: React.FC<EventFormProps> = ({
                     <div className="col-span-3">
                         <Input name="title" type="text" label="Título" />
                     </div>
-
                     <div>
                         <Select
                             name="icon"
@@ -229,7 +286,6 @@ export const EventForm: React.FC<EventFormProps> = ({
                             options={iconOptions}
                         />
                     </div>
-
                     <div>
                         <Select
                             name="color"
@@ -237,7 +293,6 @@ export const EventForm: React.FC<EventFormProps> = ({
                             options={colorOptions}
                         />
                     </div>
-
                     <div className="flex flex-col">
                         <Checkbox name="allDay" label="Dia Todo" />
                         <Checkbox
@@ -245,7 +300,6 @@ export const EventForm: React.FC<EventFormProps> = ({
                             label="Videoconferência"
                         />
                     </div>
-
                     <div>
                         <Input
                             name="date"
@@ -253,7 +307,6 @@ export const EventForm: React.FC<EventFormProps> = ({
                             type="datetime-local"
                         />
                     </div>
-
                     <div>
                         <Input
                             name="endDate"
@@ -261,136 +314,259 @@ export const EventForm: React.FC<EventFormProps> = ({
                             type="datetime-local"
                         />
                     </div>
-
-                    <div className="row-span-2 rounded flex flex-col justify-between">
-                        <div className="mx-auto">
-                            <div className="flex">
-                                <Select
-                                    label="Participantes"
-                                    name="guests"
-                                    options={peopleOptions}
-                                    value={guestToAdd}
-                                    onChange={handleGuestChange}
-                                    isClearable
-                                    className="flex-grow"
-                                    placeholder="Selecione"
-                                />
-                                <div className="display-flex pr-2 pt-2">
-                                    <OverlayTrigger
-                                        placement="top"
-                                        overlay={
-                                            <Tooltip id="add-guest-tooltip">
-                                                Adicionar convidado
-                                            </Tooltip>
-                                        }
-                                    >
-                                        <Button
-                                            variant="success"
-                                            onClick={handleAddGuest}
-                                            disabled={!guestToAdd}
-                                            className="font-bold"
-                                            aria-label="Adicionar convidado"
-                                        >
-                                            +
-                                        </Button>
-                                    </OverlayTrigger>
-                                </div>
-                            </div>
-                            <div className="max-h-36 overflow-y-auto">
-                                {selectedGuests.length === 0 ? (
-                                    <p className="text-sm text-gray-500 italic pl-2">
-                                        Nenhum convidado adicionado.
-                                    </p>
-                                ) : (
-                                    <ul className="pl-3">
-                                        {selectedGuests.map((guest) => (
-                                            <li
-                                                key={guest.value}
-                                                className="pr-3 flex justify-between hover:bg-gray-100 rounded"
+                    {/* PARTICIPANTES */}
+                    <div className="row-span-2 rounded flex flex-col">
+                        <div
+                            className="mx-auto w-full justify-between"
+                            style={{
+                                position: "relative",
+                                width: "100%",
+                                minWidth: "240px",
+                            }}
+                        >
+                            <Input
+                                name="guestsSearch"
+                                label="👤 Participantes"
+                                type="text"
+                                autoComplete="off"
+                                value={guestInput}
+                                onChange={(e) => {
+                                    setGuestInput(e.target.value);
+                                    setShowList(true);
+                                }}
+                                onFocus={() => setShowList(true)}
+                                onBlur={() =>
+                                    setTimeout(() => setShowList(false), 120)
+                                }
+                                placeholder="Digite para buscar e adicionar"
+                            />
+                            {showList && (
+                                <div
+                                    style={{
+                                        position: "absolute",
+                                        top: "100%",
+                                        left: 0,
+                                        width: "100%",
+                                        background: "#fff",
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        zIndex: 99,
+                                        maxHeight: 180,
+                                        overflowY: "auto",
+                                        boxSizing: "border-box",
+                                        marginTop: 2,
+                                    }}
+                                >
+                                    {filteredOptions.length > 0 ? (
+                                        filteredOptions.map((opt) => (
+                                            <div
+                                                key={opt.value}
+                                                style={{
+                                                    cursor: "pointer",
+                                                    padding: "8px 12px",
+                                                }}
+                                                className="hover:bg-light"
+                                                onMouseDown={() =>
+                                                    handleAddGuest(opt)
+                                                }
                                             >
-                                                <span>{guest.label}</span>
-                                                <Button
-                                                    variant="danger"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        removeGuest(guest.value)
-                                                    }
-                                                    aria-label={`Remover ${guest.label}`}
+                                                <span
+                                                    role="img"
+                                                    aria-label="adicionar"
+                                                    className="mr-2"
                                                 >
-                                                    ×
-                                                </Button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </div>
+                                                    ➕
+                                                </span>
+                                                {opt.label}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div
+                                            style={{
+                                                padding: 8,
+                                                color: "#888",
+                                            }}
+                                        >
+                                            Nenhum resultado.
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                        <div className="max-h-36 overflow-y-auto mt-2 w-full">
+                            {selectedGuests.length === 0 ? (
+                                <p className="text-sm text-gray-500 italic pl-2">
+                                    Nenhum convidado adicionado.
+                                </p>
+                            ) : (
+                                <ul className="pl-3">
+                                    {selectedGuests.map((guest) => (
+                                        <li
+                                            key={guest.value}
+                                            className="pr-3 flex justify-between hover:bg-gray-100 rounded"
+                                        >
+                                            <span>{guest.label}</span>
+                                            <Button
+                                                variant="danger"
+                                                size="sm"
+                                                onClick={() =>
+                                                    handleRemoveGuest(
+                                                        guest.value
+                                                    )
+                                                }
+                                                aria-label={`Remover ${guest.label}`}
+                                                type="button"
+                                            >
+                                                ×
+                                            </Button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
                     </div>
-
                     <div className="col-span-2">
                         <InputMultiLined name="description" label="Descrição" />
                     </div>
-
-                    <div className="col-span-3">
-                        <Select
-                            name="recurrence.type"
-                            label="Repetir"
-                            options={[
-                                { value: "none", label: "Não repetir" },
-                                { value: "custom", label: "Personalizado..." },
-                            ]}
-                            onChange={handleRecurrenceChange}
-                        />
-                    </div>
-
-                    {recurrenceType === "custom" && (
-                        <>
-                            <div>
-                                <Select
-                                    name="recurrence.frequency"
-                                    label="Frequência"
-                                    options={[
-                                        { value: "daily", label: "Todo dia" },
-                                        {
-                                            value: "weekly",
-                                            label: "Toda semana",
-                                        },
-                                        { value: "monthly", label: "Todo mês" },
-                                        { value: "yearly", label: "Todo ano" },
-                                    ]}
-                                />
-                            </div>
-                            <div>
-                                <Input
-                                    name="recurrence.interval"
-                                    label="A cada quantos?"
-                                    type="number"
-                                    min={1}
-                                    defaultValue={1}
-                                />
-                            </div>
-                            <div>
-                                <Input
-                                    name="recurrence.until"
-                                    label="Repetir até"
-                                    type="date"
-                                />
-                            </div>
-                            <div className="col-span-3">
-                                Dias da semana (semanal):
-                                <div className="flex gap-3 flex-wrap">
-                                    {weekdays.map((day) => (
-                                        <Checkbox
-                                            key={day.name}
-                                            name={day.name}
-                                            label={day.label}
+                    {/* RECORRÊNCIA - abaixo da descrição, sem espaçamento extra */}
+                    <div className="col-span-3" style={{ marginTop: 0 }}>
+                        <div className="flex items-center gap-4 mb-1">
+                            <label className="font-semibold">Repetição:</label>
+                            <select
+                                value={recurrenceType}
+                                onChange={(e) =>
+                                    setRecurrenceType(
+                                        (e.target as HTMLSelectElement).value
+                                    )
+                                }
+                                className="border rounded px-2 py-1"
+                                style={{ height: 36 }}
+                            >
+                                {recurrenceTypes.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </option>
+                                ))}
+                            </select>
+                            {recurrenceType !== "none" && (
+                                <>
+                                    <span>A cada</span>
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        value={recurrenceInterval}
+                                        onChange={(e) =>
+                                            setRecurrenceInterval(
+                                                Math.max(
+                                                    1,
+                                                    Number(
+                                                        (
+                                                            e.target as HTMLInputElement
+                                                        ).value
+                                                    )
+                                                )
+                                            )
+                                        }
+                                        className="border rounded px-1 py-1"
+                                        style={{ width: 50 }}
+                                    />
+                                    <span>
+                                        {recurrenceType === "daily"
+                                            ? "dia(s)"
+                                            : recurrenceType === "weekly"
+                                            ? "semana(s)"
+                                            : recurrenceType === "monthly"
+                                            ? "mês(es)"
+                                            : "ano(s)"}
+                                    </span>
+                                </>
+                            )}
+                        </div>
+                        {recurrenceType === "weekly" && (
+                            <div className="flex flex-wrap items-center gap-2 mb-2">
+                                <span className="font-semibold">
+                                    Dias da semana:
+                                </span>
+                                {weekDays.map((d) => (
+                                    <label key={d.value} className="mr-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedDays.includes(
+                                                d.value
+                                            )}
+                                            onChange={() => toggleDay(d.value)}
                                         />
-                                    ))}
-                                </div>
+                                        <span className="ml-1">{d.label}</span>
+                                    </label>
+                                ))}
                             </div>
-                        </>
-                    )}
-
+                        )}
+                        {recurrenceType !== "none" && (
+                            <div className="flex items-center gap-3 mb-1">
+                                <label className="font-semibold mb-0">
+                                    Termina:
+                                </label>
+                                <select
+                                    value={recurrenceEndType}
+                                    onChange={(e) =>
+                                        setRecurrenceEndType(
+                                            (e.target as HTMLSelectElement)
+                                                .value
+                                        )
+                                    }
+                                    className="border rounded px-2 py-1"
+                                >
+                                    {recurrenceEndTypes.map((opt) => (
+                                        <option
+                                            key={opt.value}
+                                            value={opt.value}
+                                        >
+                                            {opt.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                {recurrenceEndType === "onDate" && (
+                                    <input
+                                        type="date"
+                                        className="border rounded px-2 py-1"
+                                        value={recurrenceEndDate}
+                                        onChange={(e) =>
+                                            setRecurrenceEndDate(e.target.value)
+                                        }
+                                    />
+                                )}
+                                {recurrenceEndType === "count" && (
+                                    <>
+                                        <span>Após</span>
+                                        <input
+                                            type="number"
+                                            min={1}
+                                            className="border rounded px-1 py-1"
+                                            style={{ width: 60 }}
+                                            value={recurrenceCount}
+                                            onChange={(e) =>
+                                                setRecurrenceCount(
+                                                    Math.max(
+                                                        1,
+                                                        Number(
+                                                            (
+                                                                e.target as HTMLInputElement
+                                                            ).value
+                                                        )
+                                                    )
+                                                )
+                                            }
+                                        />
+                                        <span>ocorrências</span>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                        {/* Resumo dinâmico */}
+                        <div className="text-gray-700 italic text-sm mt-0">
+                            {summary}
+                        </div>
+                    </div>
                     <div className="col-span-3 text-center mb-2">
                         <Button type="submit" variant="primary" size="lg">
                             Salvar

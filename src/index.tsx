@@ -11,9 +11,9 @@ const root = ReactDOM.createRoot(
 const client = `GBP ${environments.client.municipio}`;
 document.title = client;
 root.render(
-    <React.StrictMode>
-        <App />
-    </React.StrictMode>
+    // <React.StrictMode>
+    <App />
+    // {/* </React.StrictMode> */}
 );
 
 // If you want to start measuring performance in your app, pass a function

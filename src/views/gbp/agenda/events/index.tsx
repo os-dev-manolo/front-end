@@ -1,67 +1,56 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-console */
 import "bootstrap/dist/css/bootstrap.min.css";
-
 import { Button, Modal, Spinner } from "react-bootstrap";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { EventsForm } from "../../../../components/page-releated/agenda/events";
 import { IAgendaEvent } from "../../../../shared/interfaces/IEvent";
 import { AgendaApiService } from "../../../../shared/services/api/agenda-api-service";
 
+// ========== CRIAÇÃO DE EVENTO ==========
 interface AgendaEventProps {
     onEventCreated?: (event: IAgendaEvent) => void;
 }
 
 export const AgendaEvent: React.FC<AgendaEventProps> = ({ onEventCreated }) => {
     const [show, setShow] = useState(false);
+    const [formKey, setFormKey] = useState(0);
 
-    const handleOpen = () => setShow(true);
-    const handleClose = () => setShow(false);
-
+    // Fecha o modal só DEPOIS do sucesso
     const doAfterReset = (event?: IAgendaEvent) => {
-        handleClose();
-        if (event) {
-            console.log(
-                "📤xxxxxxxxxxxxxxxxxxxxxxx AgendaEvent repassando evento:",
-                event
-            ); // debug
-            onEventCreated?.(event); // <- isso é essencial
-        }
+        setShow(false);
+        setFormKey((k) => k + 1);
+        if (event) onEventCreated?.(event);
     };
 
     return (
         <>
             <div className="d-flex justify-content-end gap-5">
-                <Button variant="string" color="black" onClick={handleOpen}>
+                <Button variant="string" onClick={() => setShow(true)}>
                     + Novo Evento
                 </Button>
             </div>
-
             <Modal
                 show={show}
-                onHide={handleClose}
+                onHide={() => setShow(false)}
+                onExited={() => setFormKey((k) => k + 1)}
                 centered
                 dialogClassName="modal-lg"
             >
-                <Modal.Header closeButton className="position-relative">
-                    <Modal.Title
-                        className="position-absolute top-50 start-50 translate-middle"
-                        style={{ margin: 0 }}
-                    >
-                        Criar Novo Evento
-                    </Modal.Title>
+                <Modal.Header closeButton>
+                    <Modal.Title>Criar Novo Evento</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <EventsForm doAfterReset={doAfterReset} />
+                    {show && (
+                        <EventsForm key={formKey} doAfterReset={doAfterReset} />
+                    )}
                 </Modal.Body>
             </Modal>
         </>
     );
 };
 
+// ========== EDIÇÃO DE EVENTO ==========
 interface AgendaEventEditProps {
     event: IAgendaEvent;
-    scope: "only" | "thisAndFuture" | "all";
     onClose: () => void;
     onEventUpdated: (updatedEvent: IAgendaEvent) => void;
 }
@@ -69,68 +58,81 @@ interface AgendaEventEditProps {
 export const AgendaEventEdit: React.FC<AgendaEventEditProps> = ({
     event,
     onClose,
-    scope,
     onEventUpdated,
 }) => {
     const [loading, setLoading] = useState(true);
     const [eventWithMembers, setEventWithMembers] =
         useState<IAgendaEvent | null>(null);
-
+    const [show, setShow] = useState(true);
+    const [formKey, setFormKey] = useState(0);
+ 
+    // Sempre carrega os membros quando muda o evento
     useEffect(() => {
+        let mounted = true;
+        setLoading(true);
+        setEventWithMembers(null);
+        setShow(true);
         const fetchMembers = async () => {
             try {
-                // Pega membros do próprio evento (não importa id, só importa que é o certo)
                 const response = await AgendaApiService.getEventMembers(
                     Number(event.id)
                 );
                 const memberIds = response.data.map((pessoa: any) => pessoa.id);
-                setEventWithMembers({ ...event, members: memberIds });
+                if (mounted)
+                    setEventWithMembers({ ...event, members: memberIds });
             } catch (err) {
-                console.error("Erro ao buscar membros do evento:", err);
-                setEventWithMembers(event);
+                if (mounted) setEventWithMembers(event);
             } finally {
-                setLoading(false);
+                if (mounted) setLoading(false);
             }
         };
-
         fetchMembers();
+        return () => {
+            mounted = false;
+        };
     }, [event]);
 
-    if (loading || !eventWithMembers) {
-        return (
-            <Modal show onHide={onClose} centered dialogClassName="modal-lg">
-                <Modal.Body className="text-center py-5">
-                    <Spinner animation="border" />
-                </Modal.Body>
-            </Modal>
-        );
-    }
+    // Fecha o modal só DEPOIS do submit, desmontando o form para próxima edição
+    const doAfterReset = useCallback(
+        (evt?: IAgendaEvent) => {
+            setShow(false);
+            setFormKey((k) => k + 1);
+            if (evt) onEventUpdated(evt);
+        },
+        [onEventUpdated]
+    );
 
-    const handleEventUpdate = (updatedEvent: IAgendaEvent) => {
-        onEventUpdated(updatedEvent);
+    // Só desmonta o form quando o modal realmente sumiu
+    const handleExited = () => {
+        setEventWithMembers(null);
+        setShow(false);
         onClose();
     };
 
-    // Para "Editar Todos", o occurrenceDate tem que ser SEMPRE o início real da série.
-    // (event.start é sempre o início real daquela parte da série, mesmo após split)
-    let editOccurrenceDate: Date | undefined;
-    if (event.start) {
-        editOccurrenceDate = new Date(event.start);
-    }
-
     return (
-        <Modal show onHide={onClose} centered dialogClassName="modal-lg">
+        <Modal
+            show={show}
+            onHide={() => setShow(false)}
+            onExited={handleExited}
+            centered
+            dialogClassName="modal-lg"
+        >
             <Modal.Header closeButton>
                 <Modal.Title>Editar Evento</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <EventsForm
-                    initialData={eventWithMembers}
-                    doAfterReset={onClose}
-                    onEventUpdated={handleEventUpdate}
-                    scope={scope}
-                    occurrenceDate={editOccurrenceDate}
-                />
+                {loading || !eventWithMembers ? (
+                    <div className="text-center py-5">
+                        <Spinner animation="border" />
+                    </div>
+                ) : (
+                    <EventsForm
+                        key={formKey}
+                        initialData={eventWithMembers}
+                        doAfterReset={doAfterReset}
+                        onEventUpdated={onEventUpdated}
+                    />
+                )}
             </Modal.Body>
         </Modal>
     );

@@ -7,6 +7,7 @@ export interface IPaginate {
 }
 
 export interface IPaginateApiResponse<T> {
+    exceptions: never[];
     data: T;
     paginate: IPaginate;
 }

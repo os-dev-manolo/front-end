@@ -77,6 +77,16 @@ export const AgendaApiService = {
         );
         return data;
     },
+    async createEventException(
+        eventId: number,
+        params: { date: string; action: "delete" | "edit"; payload?: any }
+    ) {
+        const { data } = await semvApi.post(
+            `/agenda/event/${eventId}/exception`,
+            params
+        );
+        return data;
+    },
 
     async removeEventMember(eventId: number, pessoaId: number) {
         const { data } = await semvApi.delete(
@@ -96,4 +106,17 @@ export const AgendaApiService = {
         const { data } = await semvApi.get("/agenda/event/pessoa-fisica");
         return data; // depende do formato da resposta, pode precisar ajustar
     },
+
+    async deleteRecurringFromDate(
+        eventId: number,
+        params: { fromDate: string }
+    ) {
+        // Se seguir seu padrão REST: rota tem o prefixo /agenda/event/
+        const { data } = await semvApi.post(
+            `/agenda/event/${eventId}/delete-from-date`,
+            params
+        );
+        return data;
+    },
+
 };

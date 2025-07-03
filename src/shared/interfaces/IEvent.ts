@@ -12,16 +12,18 @@ export interface IAgendaEvent {
 }
 
 export interface IAgendaEventResponse {
-    description: string;
-    notifyOnDate: boolean;
-    color: unknown;
-    icon: unknown;
-    type: string;
     id: number;
     title: string;
-    allday: string;
+    description?: string;
+    allday?: string;
     start: string;
     end: string;
+    rrule?: string;
+    notifyOnDate?: boolean;
+    color?: string;
+    icon?: string;
+    type?: string;
+    members?: string[]; // ou o tipo correto
 }
 
 export interface IAgendaTypedEvent {
