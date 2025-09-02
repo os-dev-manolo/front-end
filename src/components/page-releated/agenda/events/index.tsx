@@ -13,6 +13,7 @@ import {
 } from "../../../../views/gbp/agenda/colors-icons-desc";
 import { EventForm } from "./eventForm";
 import { semvApi } from "../../../../shared/services/axios/apis.service";
+import { AgendaApiService } from "../../../../shared/services/api/agenda-api-service";
 
 // --- AUX: Monta RRULE string a partir dos campos do form
 const freqMap: Record<string, Frequency> = {
@@ -45,7 +46,9 @@ function buildRRule(form: any): string | undefined {
     };
 
     if (form.recurrenceType === "weekly" && form.rruleDays?.length) {
-        options.byweekday = form.rruleDays.map((d: string) => weekDayMap[d]).filter(Boolean);
+        options.byweekday = form.rruleDays
+            .map((d: string) => weekDayMap[d])
+            .filter(Boolean);
     }
     if (form.recurrenceEndType === "onDate" && form.recurrenceEndDate) {
         options.until = new Date(form.recurrenceEndDate);
@@ -65,13 +68,17 @@ function buildRRule(form: any): string | undefined {
 interface FormProps {
     doAfterReset(event?: IAgendaEvent): void;
     initialData?: IAgendaEvent;
-    onEventUpdated?(updatedEvent: IAgendaEvent): void;
+    onEventUpdated?(updatedEvent?: IAgendaEvent): void;
+    scope?: "only" | "all" | "thisAndFuture";
+    occurrenceDate?: Date | string;
 }
 
 export const EventsForm: React.FC<FormProps> = ({
     doAfterReset,
     initialData,
     onEventUpdated,
+    scope,
+    occurrenceDate,
 }) => {
     const formRef = useRef<FormHandles>(null);
     const [, setLoading] = useState<boolean>(false);
@@ -157,17 +164,63 @@ export const EventsForm: React.FC<FormProps> = ({
             try {
                 setLoading(true);
 
-                let eventResult: IAgendaEvent;
                 if (initialData && initialData.id) {
                     const realId = parseInt(
                         String(initialData.id).split("-")[0],
                         10
                     );
+
+                    // ----------- NOVA LÓGICA DE EDIÇÃO DE RECORRENTE -------------
+                    if (scope === "only" && occurrenceDate) {
+                        // 1. Cria exceção de delete para aquela data
+                        await semvApi.post(
+                            `/agenda/event/${realId}/exception`,
+                            {
+                                date: occurrenceDate,
+                                action: "delete",
+                            }
+                        );
+                        // 2. Cria novo evento único com os dados editados (para aquele dia)
+                        await semvApi.post("/agenda/event/new", {
+                            ...payload,
+                            start: new Date(occurrenceDate),
+                            end: new Date(
+                                new Date(occurrenceDate).getTime() +
+                                    (payload.end.getTime() -
+                                        payload.start.getTime())
+                            ),
+                            rrule: undefined,
+                        });
+                        showToast({
+                            type: "success",
+                            message: "Edição aplicada só nesta ocorrência.",
+                        });
+                        doAfterReset();
+                        onEventUpdated?.();
+                        return;
+                    }
+
+                    if (scope === "thisAndFuture" && occurrenceDate) {
+                        await AgendaApiService.splitRecurringEvent(
+                            realId,
+                            payload,
+                            occurrenceDate
+                        );
+                        showToast({
+                            type: "success",
+                            message:
+                                "Evento editado desta ocorrência em diante!",
+                        });
+                        doAfterReset();
+                        onEventUpdated?.();
+                        return;
+                    }
+                    // ALL ou padrão (edita tudo)
                     const response = await semvApi.put(
                         `/agenda/event/${realId}`,
                         payload
                     );
-                    eventResult = response.data;
+                    const eventResult = response.data;
                     showToast({
                         type: "success",
                         message: "Evento e membros atualizados com sucesso",
@@ -175,11 +228,12 @@ export const EventsForm: React.FC<FormProps> = ({
                     doAfterReset(eventResult);
                     onEventUpdated?.(eventResult);
                 } else {
+                    // Criação normal
                     const response = await semvApi.post(
                         "/agenda/event/new",
                         payload
                     );
-                    eventResult = response.data;
+                    const eventResult = response.data;
                     eventResult.members = Array.isArray(eventResult.members)
                         ? eventResult.members
                         : [];
@@ -201,7 +255,7 @@ export const EventsForm: React.FC<FormProps> = ({
                 setLoading(false);
             }
         },
-        [doAfterReset, initialData, onEventUpdated]
+        [doAfterReset, initialData, onEventUpdated, scope, occurrenceDate]
     );
 
     // Inicializa os dados do evento no formulário

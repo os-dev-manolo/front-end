@@ -1,9 +1,8 @@
 import { ReactElement, useCallback, useRef, useState } from "react";
-
 import { Form } from "@unform/web";
 import { FormHandles } from "@unform/core";
-
 import { Button } from "react-bootstrap";
+
 import { showToast } from "../../../../components/global/toast";
 import { NewForm } from "./form";
 import { CreateInputs as OfficialsInputs } from "../../officials/components/inputs";
@@ -21,7 +20,6 @@ export const NewPoliticForm: React.FC = (): ReactElement => {
     const [newParty, setNewParty] = useState(false);
 
     const handleSubmit = useCallback(async (data: unknown) => {
-        console.log(data);
         try {
             setLoading(true);
             await StandardGbpApiService.create({
@@ -40,121 +38,120 @@ export const NewPoliticForm: React.FC = (): ReactElement => {
         }
     }, []);
 
-    const handleNewOfficial = () => {
-        setNewOfficial(!newOffical);
-    };
-    const handleNewPerson = () => {
-        setNewPerson(!newPerson);
-    };
-    const handleNewParty = () => {
-        setNewParty(!newParty);
-    };
     return (
-        <div className="flex justify-center items-center">
-            {newPerson && (
+        <div className="w-full max-w-4xl mx-auto px-4 py-6">
+            {/* Modais com títulos institucionais */}
+            <div className={newPerson ? "block" : "hidden"}>
                 <NewForm
                     path="crud/pessoa-fisica"
-                    title="ADD NOVA PESSOA FÍSICA"
+                    title="Adicionar nova pessoa física"
                     fields={PersonInputs.map((input) => input())}
-                    doAfterSubmit={() => setNewPerson(!newPerson)}
-                    classNameStyle="grid grid-cols-2 gap-2"
+                    doAfterSubmit={() => setNewPerson(false)}
+                    classNameStyle="grid grid-cols-2 gap-4"
                 />
-            )}
-            {newOffical && (
+            </div>
+
+            <div className={newOffical ? "block" : "hidden"}>
                 <NewForm
                     path="crud/cargos-politicos"
-                    title="ADD NOVO CARGO POLITICO"
+                    title="Adicionar novo cargo político"
                     fields={OfficialsInputs.map((input) => input())}
-                    doAfterSubmit={() => setNewOfficial(!newOffical)}
+                    doAfterSubmit={() => setNewOfficial(false)}
+                    classNameStyle="grid grid-cols-2 gap-4"
                 />
-            )}
-            {newParty && (
+            </div>
+
+            <div className={newParty ? "block" : "hidden"}>
                 <NewForm
                     path="crud/partidos-politicos"
-                    title="ADD NOVO PARTIDO POLITICO"
+                    title="Adicionar novo partido político"
                     fields={PartyInputs.map((input) => input())}
-                    doAfterSubmit={() => setNewParty(!newParty)}
+                    doAfterSubmit={() => setNewParty(false)}
+                    classNameStyle="grid grid-cols-2 gap-4"
                 />
-            )}
+            </div>
+
+            {/* Form principal */}
             {!newPerson && !newOffical && !newParty && (
-                <Form onSubmit={handleSubmit} ref={formRef} className="w-2/4">
-                    <div className="flex space-y-3.5">
-                        <OfficialType />
+                <div className="bg-white shadow-md rounded-xl p-6 ">
+                    <h2 className="text-2xl font-semibold mb-6 text-center text-gray-700">
+                        Cadastro de Político
+                    </h2>
+                    <Form
+                        onSubmit={handleSubmit}
+                        ref={formRef}
+                        className="space-y-5"
+                    >
+                        {/* Cargo */}
+                        <div className="grid grid-cols-[1fr_auto] gap-4 items-center">
+                            <OfficialType />
+                            <Button
+                                variant="outline-primary"
+                                type="button"
+                                className="px-3 py-1 text-sm"
+                                onClick={() => setNewOfficial(true)}
+                            >
+                                Novo Cargo
+                            </Button>
+                        </div>
 
-                        <Button
-                            variant="info"
-                            type="button"
-                            onClick={handleNewOfficial}
-                        >
-                            NOVO CARGO
-                        </Button>
-                    </div>
-                    <div className="flex space-y-3.5">
-                        <Persons />
+                        {/* Pessoa */}
+                        <div className="grid grid-cols-[1fr_auto] gap-4 items-center">
+                            <Persons />
+                            <Button
+                                variant="outline-primary"
+                                type="button"
+                                className="px-3 py-1 text-sm"
+                                onClick={() => setNewPerson(true)}
+                            >
+                                Nova Pessoa
+                            </Button>
+                        </div>
 
-                        <Button
-                            variant="info"
-                            type="button"
-                            onClick={handleNewPerson}
-                        >
-                            NOVA PESSOA
-                        </Button>
-                    </div>
-                    <div className="flex space-y-3.5">
-                        <Party />
+                        {/* Partido */}
+                        <div className="grid grid-cols-[1fr_auto] gap-4 items-center">
+                            <Party />
+                            <Button
+                                variant="outline-primary"
+                                type="button"
+                                className="px-3 py-1 text-sm"
+                                onClick={() => setNewParty(true)}
+                            >
+                                Novo Partido
+                            </Button>
+                        </div>
 
-                        <Button
-                            variant="info"
-                            type="button"
-                            onClick={handleNewParty}
-                        >
-                            NOVO PARTIDO
-                        </Button>
-                    </div>
-
-                    <Select
-                        name="estado"
-                        label="Estado"
-                        options={[
-                            {
-                                label: "Paraná",
-                                value: "PR",
-                            },
-                            {
-                                label: "Santa Catarina",
-                                value: "SC",
-                            },
-                            {
-                                label: "São Paulo",
-                                value: "SP",
-                            },
-                        ]}
-                    />
-                    <Select
-                        name="cidade"
-                        label="Cidade"
-                        options={[
-                            {
-                                label: "Curitiba",
-                                value: "Curitiba",
-                            },
-                            {
-                                label: "Londrina",
-                                value: "Londrina",
-                            },
-                            {
-                                label: "Maringá",
-                                value: "Maringá",
-                            },
-                        ]}
-                    />
-
-                    <div className="flex justify-center items-center mt-2">
-                        <Button variant="success" type="submit">
-                            CADASTRAR
-                        </Button>
-                    </div>
-                </Form>
+                        {/* Estado + Cidade + Salvar */}
+                        <div className="grid grid-cols-[1fr_1fr_auto] gap-4 items-center">
+                            <Select
+                                name="estado"
+                                label="Estado"
+                                options={[
+                                    { label: "Paraná", value: "PR" },
+                                    { label: "Santa Catarina", value: "SC" },
+                                    { label: "São Paulo", value: "SP" },
+                                ]}
+                            />
+                            <Select
+                                name="cidade"
+                                label="Cidade"
+                                options={[
+                                    { label: "Curitiba", value: "Curitiba" },
+                                    { label: "Londrina", value: "Londrina" },
+                                    { label: "Maringá", value: "Maringá" },
+                                ]}
+                            />
+                            <Button
+                                variant="success"
+                                type="submit"
+                                disabled={loading}
+                                className="px-4 py-1 text-sm"
+                            >
+                                {loading ? "Enviando..." : "Salvar"}
+                            </Button>
+                        </div>
+                    </Form>
+                </div>
             )}
         </div>
     );

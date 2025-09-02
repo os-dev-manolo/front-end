@@ -77,17 +77,6 @@ export const AgendaApiService = {
         );
         return data;
     },
-    async createEventException(
-        eventId: number,
-        params: { date: string; action: "delete" | "edit"; payload?: any }
-    ) {
-        const { data } = await semvApi.post(
-            `/agenda/event/${eventId}/exception`,
-            params
-        );
-        return data;
-    },
-
     async removeEventMember(eventId: number, pessoaId: number) {
         const { data } = await semvApi.delete(
             `/agenda/event/${eventId}/members/${pessoaId}`
@@ -118,5 +107,25 @@ export const AgendaApiService = {
         );
         return data;
     },
+    async createEventException(
+        eventId: number,
+        exception: {
+            date: string | Date;
+            action: "edit" | "delete";
+            payload?: any;
+        }
+    ) {
+        return semvApi.post(`/agenda/event/${eventId}/exception`, exception);
+    },
 
+    async splitRecurringEvent(
+        id: number,
+        changes: IAgendaEvent,
+        fromDate: string | Date
+    ) {
+        return semvApi.post(`/agenda/event/${id}/split`, {
+            fromDate,
+            changes,
+        });
+    },
 };

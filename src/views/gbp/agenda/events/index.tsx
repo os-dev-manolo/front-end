@@ -49,23 +49,27 @@ export const AgendaEvent: React.FC<AgendaEventProps> = ({ onEventCreated }) => {
 };
 
 // ========== EDIÇÃO DE EVENTO ==========
-interface AgendaEventEditProps {
+export interface AgendaEventEditProps {
     event: IAgendaEvent;
     onClose: () => void;
-    onEventUpdated: (updatedEvent: IAgendaEvent) => void;
+    onEventUpdated: (event?: IAgendaEvent) => void;
+    scope?: "only" | "all" | "thisAndFuture";
+    occurrenceDate?: Date | string; // <-- Corrigido aqui!
 }
 
 export const AgendaEventEdit: React.FC<AgendaEventEditProps> = ({
     event,
     onClose,
     onEventUpdated,
+    scope,
+    occurrenceDate,
 }) => {
     const [loading, setLoading] = useState(true);
     const [eventWithMembers, setEventWithMembers] =
         useState<IAgendaEvent | null>(null);
     const [show, setShow] = useState(true);
     const [formKey, setFormKey] = useState(0);
- 
+
     // Sempre carrega os membros quando muda o evento
     useEffect(() => {
         let mounted = true;
@@ -118,7 +122,19 @@ export const AgendaEventEdit: React.FC<AgendaEventEditProps> = ({
             dialogClassName="modal-lg"
         >
             <Modal.Header closeButton>
-                <Modal.Title>Editar Evento</Modal.Title>
+                <Modal.Title>
+                    Editar Evento
+                    {scope === "only" && (
+                        <span className="text-warning ms-2" style={{ fontSize: 14 }}>
+                            (só esta ocorrência)
+                        </span>
+                    )}
+                    {scope === "thisAndFuture" && (
+                        <span className="text-warning ms-2" style={{ fontSize: 14 }}>
+                            (desta em diante)
+                        </span>
+                    )}
+                </Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {loading || !eventWithMembers ? (
@@ -131,9 +147,20 @@ export const AgendaEventEdit: React.FC<AgendaEventEditProps> = ({
                         initialData={eventWithMembers}
                         doAfterReset={doAfterReset}
                         onEventUpdated={onEventUpdated}
+                        scope={scope}
+                        occurrenceDate={occurrenceDate} // <-- Corrigido aqui!
                     />
                 )}
             </Modal.Body>
         </Modal>
     );
 };
+
+// ========== FormProps do EventsForm ==========
+export interface FormProps {
+    doAfterReset(event?: IAgendaEvent): void;
+    initialData?: IAgendaEvent;
+    onEventUpdated?(updatedEvent?: IAgendaEvent): void;
+    scope?: "only" | "all" | "thisAndFuture";
+    occurrenceDate?: Date | string; // <-- Corrigido aqui!
+}

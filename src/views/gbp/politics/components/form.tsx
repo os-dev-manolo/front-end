@@ -54,24 +54,27 @@ export const NewForm: React.FC<NewFormProps> = ({
     };
 
     return (
-        <div className="border-4">
-            <div>{title}</div>
+        <div className="bg-white shadow-md rounded-xl p-6 max-w-3xl mx-auto">
+            <div className="text-lg font-semibold mb-4 text-center">
+                {title}
+            </div>
             <Form onSubmit={handleSubmit} ref={formRef} className="w-full">
-                <div className={classNameStyle || "grid grid-cols-3"}>
+                <div className={classNameStyle || "grid grid-cols-3 gap-4"}>
                     {fields}
                 </div>
 
                 {children}
-                <div className="flex mt-3 space-x-3.5">
-                    <Button variant="success" type="submit">
-                        CRIAR
+
+                <div className="flex mt-4 space-x-3.5 justify-end">
+                    <Button variant="success" type="submit" disabled={loading}>
+                        {loading ? "Enviando..." : "Criar"}
                     </Button>
                     <Button
                         variant="danger"
                         type="button"
                         onClick={handleCancel}
                     >
-                        CANCELAR
+                        Cancelar
                     </Button>
                 </div>
             </Form>

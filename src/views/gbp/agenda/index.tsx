@@ -32,6 +32,7 @@ import {
 } from "./imports";
 
 const localizer = momentLocalizer(moment);
+
 export const Agenda: React.FC = () => {
     const { filters, setFilters } = useFilters();
     const { setLoading } = useContext(LoadingContext);
@@ -39,6 +40,14 @@ export const Agenda: React.FC = () => {
         start: moment().startOf("month").toDate(),
         end: moment().endOf("month").toDate(),
     }));
+
+    // ---- ADICIONADOS ----
+    const [showEditScopeModal, setShowEditScopeModal] = useState(false);
+    const [editScope, setEditScope] = useState<
+        "only" | "all" | "thisAndFuture"
+    >("only");
+    // ---------------------
+
     const [showDeleteScopeModal, setShowDeleteScopeModal] = useState(false);
     const [deleteScope, setDeleteScope] = useState<
         "only" | "all" | "thisAndFuture"
@@ -72,7 +81,7 @@ export const Agenda: React.FC = () => {
 
     const parseEventTitle = (
         title: string,
-        _rrule?: string,
+        rrule?: string,
         members?: any[]
     ) => {
         const chars = Array.from(title.trim());
@@ -86,10 +95,12 @@ export const Agenda: React.FC = () => {
         }
 
         const text = chars.slice(i).join("").trim();
-        const icons = tags.map((tag) => iconMap[tag]).filter(Boolean);
+        let icons = tags.map((tag) => iconMap[tag]).filter(Boolean);
 
-        // 👥 se tem participantes
         if (members && members.length > 0) icons.push("👥");
+        // Agora a corrente sempre no início se for recorrente
+        if (rrule) icons = ["🔗", ...icons];
+
         return { colorLetter, icons, text };
     };
 
@@ -121,7 +132,6 @@ export const Agenda: React.FC = () => {
         rangeStart: Date,
         rangeEnd: Date
     ): IAgendaTypedEvent[] {
-        // Evita expandir eventos que já são instância (id com hífen ou originalId definido)
         if (!event.rrule || String(event.id).includes("-") || event.originalId)
             return [event];
         const dur =
@@ -156,7 +166,6 @@ export const Agenda: React.FC = () => {
             const rangeStart = dateRange.start;
             const rangeEnd = dateRange.end;
 
-            // Só expande os eventos base (id sem "-")
             const expandedEvents = events.flatMap((ev) =>
                 expandEvent(ev, rangeStart, rangeEnd)
             );
@@ -218,6 +227,7 @@ export const Agenda: React.FC = () => {
             setLoading(false);
         }
     };
+
     useEffect(() => {
         onNavigate(new Date());
     }, []);
@@ -306,12 +316,18 @@ export const Agenda: React.FC = () => {
     const eventRenderer = ({ event }: { event: IAgendaTypedEvent }) => {
         const { icons, text } = parseEventTitle(
             event.title,
-            undefined,
+            event.rrule,
             event.members
         );
-        const tooltip = [text, ...icons.map((i) => iconDescriptions[i])]
+        const tooltip = [
+            text,
+            ...icons.map((i) =>
+                i === "🔗" ? "Evento recorrente" : iconDescriptions[i] || i
+            ),
+        ]
             .filter(Boolean)
             .join(" — ");
+
         return (
             <div
                 title={tooltip}
@@ -329,7 +345,6 @@ export const Agenda: React.FC = () => {
         <div>
             <AgendaEvent
                 onEventCreated={async (newEvent: IAgendaEvent) => {
-                    // Evento temporário
                     const tempId = `temp-${Date.now()}`;
                     const typedTempEvent: IAgendaTypedEvent = {
                         id: tempId,
@@ -453,6 +468,7 @@ export const Agenda: React.FC = () => {
                 />
             </div>
 
+            {/* ----------- MENU CONTEXTUAL ------------ */}
             {menuVisible && menuPosition && (
                 <div
                     ref={menuRef}
@@ -482,8 +498,13 @@ export const Agenda: React.FC = () => {
                         variant="outline-primary"
                         className="w-100 mb-1"
                         onClick={() => {
-                            setShowEditModal(true);
-                            setMenuVisible(false);
+                            if (selectedEvent?.rrule) {
+                                setShowEditScopeModal(true);
+                                setMenuVisible(false);
+                            } else {
+                                setShowEditModal(true);
+                                setMenuVisible(false);
+                            }
                         }}
                     >
                         📝 Editar
@@ -507,6 +528,72 @@ export const Agenda: React.FC = () => {
                 </div>
             )}
 
+            {/* ----------- MODAL DE ESCOPO DE EDIÇÃO ------------ */}
+            <Modal
+                show={showEditScopeModal}
+                onHide={() => setShowEditScopeModal(false)}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Editar Evento Recorrente</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>
+                        Este evento faz parte de uma recorrência. O que você
+                        deseja editar?
+                    </p>
+                    <div>
+                        <label className="d-block">
+                            <input
+                                type="radio"
+                                name="editScope"
+                                value="only"
+                                checked={editScope === "only"}
+                                onChange={() => setEditScope("only")}
+                            />
+                            Só esta ocorrência
+                        </label>
+                        <label className="d-block">
+                            <input
+                                type="radio"
+                                name="editScope"
+                                value="thisAndFuture"
+                                checked={editScope === "thisAndFuture"}
+                                onChange={() => setEditScope("thisAndFuture")}
+                            />
+                            Desta ocorrência em diante
+                        </label>
+                        <label className="d-block">
+                            <input
+                                type="radio"
+                                name="editScope"
+                                value="all"
+                                checked={editScope === "all"}
+                                onChange={() => setEditScope("all")}
+                            />
+                            Todas as ocorrências
+                        </label>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button
+                        variant="secondary"
+                        onClick={() => setShowEditScopeModal(false)}
+                    >
+                        Cancelar
+                    </Button>
+                    <Button
+                        variant="primary"
+                        onClick={() => {
+                            setShowEditScopeModal(false);
+                            setShowEditModal(true);
+                        }}
+                    >
+                        Editar
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* ----------- MODAL DE ESCOPO DE EXCLUSÃO ------------ */}
             <Modal
                 show={showDeleteScopeModal}
                 onHide={() => setShowDeleteScopeModal(false)}
@@ -565,10 +652,7 @@ export const Agenda: React.FC = () => {
                             if (selectedEvent) {
                                 if (deleteScope === "only") {
                                     await AgendaApiService.createEventException(
-                                        Number(
-                                            selectedEvent.originalId ??
-                                                selectedEvent.id
-                                        ),
+                                        Number(selectedEvent.id),
                                         {
                                             date: moment(
                                                 selectedEvent.start
@@ -579,18 +663,12 @@ export const Agenda: React.FC = () => {
                                 }
                                 if (deleteScope === "all") {
                                     await AgendaApiService.deleteEvent(
-                                        Number(
-                                            selectedEvent.originalId ??
-                                                selectedEvent.id
-                                        )
+                                        Number(selectedEvent.id)
                                     );
                                 }
                                 if (deleteScope === "thisAndFuture") {
                                     await AgendaApiService.deleteRecurringFromDate(
-                                        Number(
-                                            selectedEvent.originalId ??
-                                                selectedEvent.id
-                                        ),
+                                        Number(selectedEvent.id),
                                         {
                                             fromDate: moment(
                                                 selectedEvent.start
@@ -609,6 +687,7 @@ export const Agenda: React.FC = () => {
                 </Modal.Footer>
             </Modal>
 
+            {/* ----------- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO ------------ */}
             {showDeleteModal && (
                 <Modal show onHide={() => setShowDeleteModal(false)}>
                     <Modal.Header closeButton>
@@ -635,6 +714,7 @@ export const Agenda: React.FC = () => {
                 </Modal>
             )}
 
+            {/* ----------- MODAL DE DETALHES ------------ */}
             <EventDetailModal
                 show={showDetailModal}
                 onClose={() => setShowDetailModal(false)}
@@ -643,6 +723,7 @@ export const Agenda: React.FC = () => {
                 getEventTitle={getEventTitle}
             />
 
+            {/* ----------- MODAL DE EDIÇÃO ------------ */}
             {showEditModal && selectedEvent && (
                 <AgendaEventEdit
                     event={selectedEvent}
@@ -652,6 +733,8 @@ export const Agenda: React.FC = () => {
                         setShowEditModal(false);
                         toast.success("Evento atualizado na agenda!");
                     }}
+                    scope={editScope}
+                    occurrenceDate={selectedEvent.start}
                 />
             )}
         </div>
